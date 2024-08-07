@@ -50,7 +50,19 @@
   --ClosedStatus:#B50000;
   --AnchorTage:#4286F4;
  --LabelColor: #bbbec1;
+/* ----------------- garima css ---------  */
 
+
+--orangeTextColor: #FF914D;
+    --greenTextColor: #008479;
+--cardsBorder: #E5E5F0;
+--activeOrangeBorder: #FF914C;
+    --timeTableCardBg: #F9FAFF;
+    --timeTableCardBorder: #F1F1F9;
+    --borderRadius5px: 5px;
+    --borderRadius10px: 10px;
+    --borderRadius17px: 17px;
+/* ----------------- garima css ---------  */
   /* ******************************************** */
 
   --font-size-30: 30px;

@@ -66,6 +66,7 @@ import Assignment_details from '../Pages/Assignment_details';
 import Assignmnt_submss from '../Pages/Assignmnt_submss';
 import Sample_paper from '../Pages/Sample_paper';
 import Profile from '../Pages/Profile';
+import DashboardPage from '../Pages/DashboardPage';
 
 const Container = styled.div`
   background-color: #F2F3F6;
@@ -111,7 +112,7 @@ const Main = () => {
           <Route exact path='/notice' element={<Notice/>}/>
           <Route exact path='/noticeview' element={<NoticeViewPage/>}/>
           <Route exact path='/event' element={<Event/>}/>
-          <Route exact path='/' element={<Login/>}/>
+          <Route exact path='/login' element={<Login/>}/>
           <Route exact path='/section' element={<Section/>}/>
           <Route exact path='/rolepermissiongetall' element={<RolePermisGetAll/>}/>
           <Route exact path='/onlinecourse' element={<OnlineCourse/>}/>
@@ -141,6 +142,8 @@ const Main = () => {
           <Route exact path='/assignmntsubmssion' element={<Assignmnt_submss/>}/>
           <Route exact path='/samplepaper' element={<Sample_paper/>}/>
           <Route exact path='/profile' element={<Profile/>}/>
+          <Route exact path='/' element={<DashboardPage/>}/>
+
           
         </Routes>
       </Container>

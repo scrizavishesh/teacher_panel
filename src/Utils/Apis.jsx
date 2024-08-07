@@ -2277,3 +2277,74 @@ export const LeaveTeacherGetAllApi = async() =>{
 // ##########################  Leave in teacher  APIs end ########################### 
 
 
+// --- Garim api dashboard --- 
+
+
+// ******************************************************************************************************
+                            // Holiday  //
+// ******************************************************************************************************
+
+
+export const getAllHolidayDataApi = async(searchKey, pageNo, size) => {
+  axios.defaults.headers.common["Authorization"] = token;
+  var res = await axios.get(`${newngrok1}/holiday/all?&searchKey=${searchKey}&page=${pageNo}&size=${size}`);
+  
+  if (res) {
+      return res;
+  }else{
+      return [];
+  }
+}
+
+
+// ******************************************************************************************************
+                          // Event  //
+// ******************************************************************************************************
+
+
+export const getAllEventDataApi = async(searchKey, pageNo, size) => {
+  axios.defaults.headers.common["Authorization"] = token;
+  var res = await axios.get(`${newngrok1}/events/allEvents?&searchKey=${searchKey}&page=${pageNo}&size=${size}`);
+  
+  if (res) {
+      return res;
+  }else{
+      return [];
+  }
+}
+
+
+// ******************************************************************************************************
+                          // Assignments  //
+// ******************************************************************************************************
+
+
+export const getAllAssignmentsDataApi = async() => {
+  axios.defaults.headers.common["Authorization"] = token;
+  var res = await axios.get(`${newngrok1}/get-assignment`);
+  // var res = await axios.get(`${newngrok1}/assignment/stu-get-assignment`);
+  
+  if (res) {
+      return res;
+  }else{
+      return [];
+  }
+}
+
+// ******************************************************************************************************
+                          // ClassRoutine  //
+// ******************************************************************************************************
+
+
+export const getAllClassRoutineDataApi = async(day) => {
+  axios.defaults.headers.common["Authorization"] = token;
+  var res = await axios.get(`${newngrok1}/routine/getByStudent?day=${day}`);
+  
+  if (res) {
+      return res;
+  }else{
+      return [];
+  }
+}
+
+// --- Garim api dashboard --- 

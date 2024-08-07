@@ -280,7 +280,6 @@ const MainLayout2 = () => {
         }
     };
 
-
     return (
         <>
             <Container>
@@ -464,127 +463,7 @@ const MainLayout2 = () => {
                                 </div>
                             </div>
 
-                            {/* Accounting  */}
-                            {/* <div className='sidebarlinkborder' style={{width:'99%'}}>
-                           <div className="w-100 gap-1">
-                            <div className=" p-2 d-flex " data-bs-toggle="collapse" href="#collapseExample2212" role="button" aria-expanded="false" aria-controls="collapseExample22">
-                                
-                                <div className='flex-grow-1'>
-                                  <span>
-
-                                  <svg width="18" height="20" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M19.7143 24H0.857143C0.629814 24 0.411797 23.9097 0.251051 23.7489C0.090306 23.5882 0 23.3702 0 23.1429V0.857143C0 0.629814 0.090306 0.411797 0.251051 0.251051C0.411797 0.0903058 0.629814 0 0.857143 0H19.7143C19.9416 0 20.1596 0.0903058 20.3204 0.251051C20.4811 0.411797 20.5714 0.629814 20.5714 0.857143V23.1429C20.5714 23.3702 20.4811 23.5882 20.3204 23.7489C20.1596 23.9097 19.9416 24 19.7143 24ZM1.71429 22.2857H18.8571V1.71429H1.71429V22.2857Z" fill="black"/>
-                                    <path d="M17.1434 10.2856H3.42916C3.20184 10.2856 2.98382 10.1953 2.82307 10.0345C2.66233 9.87378 2.57202 9.65576 2.57202 9.42843V3.42843C2.57202 3.2011 2.66233 2.98309 2.82307 2.82234C2.98382 2.6616 3.20184 2.57129 3.42916 2.57129H17.1434C17.3708 2.57129 17.5888 2.6616 17.7495 2.82234C17.9103 2.98309 18.0006 3.2011 18.0006 3.42843V9.42843C18.0006 9.65576 17.9103 9.87378 17.7495 10.0345C17.5888 10.1953 17.3708 10.2856 17.1434 10.2856ZM4.28631 8.57129H16.2863V4.28557H4.28631V8.57129Z" fill="black"/>
-                                    <path d="M11.1434 17.1431H9.42916C8.95578 17.1431 8.57202 17.5268 8.57202 18.0002V19.7145C8.57202 20.1879 8.95578 20.5716 9.42916 20.5716H11.1434C11.6168 20.5716 12.0006 20.1879 12.0006 19.7145V18.0002C12.0006 17.5268 11.6168 17.1431 11.1434 17.1431Z" fill="black"/>
-                                    <path d="M16.286 17.1431H14.5717C14.0984 17.1431 13.7146 17.5268 13.7146 18.0002V19.7145C13.7146 20.1879 14.0984 20.5716 14.5717 20.5716H16.286C16.7594 20.5716 17.1432 20.1879 17.1432 19.7145V18.0002C17.1432 17.5268 16.7594 17.1431 16.286 17.1431Z" fill="black"/>
-                                    <path d="M5.99941 17.1431H4.28512C3.81173 17.1431 3.42798 17.5268 3.42798 18.0002V19.7145C3.42798 20.1879 3.81173 20.5716 4.28512 20.5716H5.99941C6.47279 20.5716 6.85655 20.1879 6.85655 19.7145V18.0002C6.85655 17.5268 6.47279 17.1431 5.99941 17.1431Z" fill="black"/>
-                                    <path d="M11.1434 12H9.42916C8.95578 12 8.57202 12.3838 8.57202 12.8571V14.5714C8.57202 15.0448 8.95578 15.4286 9.42916 15.4286H11.1434C11.6168 15.4286 12.0006 15.0448 12.0006 14.5714V12.8571C12.0006 12.3838 11.6168 12 11.1434 12Z" fill="black"/>
-                                    <path d="M16.286 12H14.5717C14.0984 12 13.7146 12.3838 13.7146 12.8571V14.5714C13.7146 15.0448 14.0984 15.4286 14.5717 15.4286H16.286C16.7594 15.4286 17.1432 15.0448 17.1432 14.5714V12.8571C17.1432 12.3838 16.7594 12 16.286 12Z" fill="black"/>
-                                    <path d="M5.99941 12H4.28512C3.81173 12 3.42798 12.3838 3.42798 12.8571V14.5714C3.42798 15.0448 3.81173 15.4286 4.28512 15.4286H5.99941C6.47279 15.4286 6.85655 15.0448 6.85655 14.5714V12.8571C6.85655 12.3838 6.47279 12 5.99941 12Z" fill="black"/>
-                                 </svg>
-
-                                  </span> &nbsp; &nbsp;
-                                    <span className='heading-16 '>Accounting</span>
-                                </div>
-
-                                <div className=' pe-2'>
-                                    <svg width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M0 -4.37114e-07L5 5L10 0L0 -4.37114e-07Z" fill="black"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            </div>
-
-                            <div className="collapse" id="collapseExample2212">
-                            <div className="card card-body my-card-body heading-16 pt-0">
-                                 <ul className='ps-3 my-anchor-tag'>
-
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/discount" ActiveClassName='active'>Discount</NavLink></li>
-                                    </div>
-
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/fee" ActiveClassName='active'>Fee Type</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/feecollection" ActiveClassName='active'>Fee Collection</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/manageinvoice" ActiveClassName='active'>Manage Invoice</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/dueinvoisce" ActiveClassName='active'>Due Invoice</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/income" ActiveClassName='active'>Income</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/incomecategory" ActiveClassName='active'>Income Category</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/expense" ActiveClassName='active'>Expense</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/expensecategory" ActiveClassName='active'>Expense Category</NavLink></li>
-                                    </div>
-                                    <div className='d-flex li-line-adjust pb-2'>
-                                        <div className='li-line-adjust'>
-                                            <svg width="6"  height="1" viewBox="0 0 6 1" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <line y1="0.5" x2="6" y2="0.5" stroke="black"/>
-                                            </svg>
-                                        </div>
-                                        <li className='ps-2'><NavLink to="/mainuserform" ActiveClassName='active'>Main User Form</NavLink></li>
-                                    </div>
-                                 </ul>
-                            </div>
-                            </div>
-
-                            </div> */}
+                      
 
 
                             {/* // Human resources */}
@@ -741,6 +620,7 @@ const MainLayout2 = () => {
                             </div>
                             <hr className='my-0 ' style={{ color: '#adadad', width: '99%' }} />
 
+
                             <div className=" p-2 d-flex " >
                                 <div className='flex-grow-1 my-anchor-tag'>
                                     <span>
@@ -751,6 +631,8 @@ const MainLayout2 = () => {
                                     <span className='heading-16 ps-1'><NavLink to="/event" ActiveClassName='active'>Event</NavLink></span>
                                 </div>
                             </div>
+
+
                             <hr className='my-0 ' style={{ color: '#adadad', width: '99%' }} />
 
                             <div className=" p-2 d-flex " >
