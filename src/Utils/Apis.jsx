@@ -3,7 +3,7 @@ import axios from 'axios'
 const token = ` Bearer ${localStorage.getItem('token')}`;
 // console.log('my-token',token)
 
-const newngrok1= 'http://auth.edu2all.in:5000';
+const newngrok1= 'https://www.auth.edu2all.in';
 // const newngrok1= 'http://10.5.51.4:5000';
 // const girjeshServer = '10.5.50.47:5000';
 
