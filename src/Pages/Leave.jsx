@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { LeaveTeacherAllApi } from '../Utils/Apis'
 import { LeaveTeacherPostApi } from '../Utils/Apis'
 import { LeaveTeacherGetAllApi } from '../Utils/Apis'
+import { getAllLeaveOfTeacherDataApi } from '../Utils/Apis'
 
 import HashLoader from './HashLoaderCom';
 
@@ -478,26 +479,99 @@ const Leave = () => {
   const [showdelete, setShowdelete] = useState(true)
   const [hidedelete, setHidedelete] = useState(false)
 
-  const [leaveType, setLeaveType] = useState()
-  const [leaveApply, setLeaveApply] = useState()
-  const [fromDate, setfromDate] = useState()
-  const [toDate, setToDate] = useState()
-  const [reason, setReason] = useState()
+
   const [document, setDocument] = useState()
 
   const [LeaveData, setLeaveData] = useState([])
   const [LeaveGetAllData, setLeaveGetAlData] = useState([])
+  const [LeaveAllData, setLeaveAllData] = useState([])
+  console.log(LeaveAllData,'leave count')
   const [loader, setLoader] = useState(false)
   const [searchKey, setSearchKey] = useState()
   const [IdForDelete, setIdForDelete] = useState()
   const [IdForUpdate, setIdForUpdate] = useState()
   console.log('my leave ID', IdForDelete)
-  // const [tabclick, setTabclick] = useState('tab3')
+
+  const [leaveType, setLeaveType] = useState()
+  const [fromDate, setfromDate] = useState()
+  const [toDate, setToDate] = useState()
+  const [reason, setReason] = useState()
+
+  const [isValidFromDateRequired, setIsValidFromDateRequired] = useState(false);
+  const [isValidToDateRequired, setIsValidToDateRequired] = useState(false);
+  const [isValidReasonRequired, setIsValidReasonRequired] = useState(false);
 
   useEffect(() => {
     TecaherLeaveGetAllApi();
     MyLeaveGetAllApi();
+    MyGetallLeaveOfTeacher();
   }, [])
+
+
+  // ###### validation ##########
+  const [errors, setErrors] = useState({});
+
+
+  const FuncValidation = () => {
+    // from date
+    if (fromDate === "" || !fromDate) {
+      setIsValidFromDateRequired(true)
+    }
+    else {
+    }
+    // to date
+    if (toDate === "" || !toDate) {
+      setIsValidToDateRequired(true)
+    }
+    else {
+    }
+    // reason
+    if (reason === "" || !reason) {
+      setIsValidReasonRequired(true)
+    }
+    else {
+    }
+    return errors;
+  }
+
+  // from date 
+  const handleFromDate = (e2) => {
+    setfromDate(e2);
+    const dateRegex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+    setIsValidFromDateRequired(dateRegex.test(e2));
+
+    if (e2 === "") {
+      setIsValidFromDateRequired(true)
+    } else {
+      setIsValidFromDateRequired(false)
+    }
+  }
+  // to date 
+  const handleToDate = (e2) => {
+    setToDate(e2);
+    const dateRegex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+    setIsValidToDateRequired(dateRegex.test(e2));
+
+    if (e2 === "") {
+      setIsValidToDateRequired(true)
+    } else {
+      setIsValidToDateRequired(false)
+    }
+  }
+  // reason
+  const handleReason = (e2) => {
+    setReason(e2);
+    const nameRegex = /^[A-Za-z]+$/;
+    setIsValidReasonRequired(nameRegex.test(e2));
+
+    if (e2 === "") {
+      setIsValidReasonRequired(true)
+    } else {
+      setIsValidReasonRequired(false)
+    }
+  }
+  // ###### validation ##########
+
 
 
   // Leave type 
@@ -520,33 +594,36 @@ const Leave = () => {
   // Leave Post Api 
   const MyTeacherLeaveApplyPostApi = async () => {
 
-    const formData = {
-      "reason": reason,
-      "startDate": fromDate,
-      "endDate": toDate,
-      "leaveType": leaveType
-    }
-
-    setLoader(true)
-    try {
-      const response = await LeaveTeacherPostApi(formData);
-      if (response?.status === 200) {
-        if (response?.data?.status === "success") {
-          toast.success(response?.data?.msg);
-          // MyLeaveGetAllApi()
-          setShow(false)
-          setHide(true)
-          setLoader(false)
+    if(FuncValidation()){
+      const formData = {
+        "reason": reason,
+        "startDate": fromDate,
+        "endDate": toDate,
+        "leaveType": leaveType
+      }
+  
+      setLoader(true)
+      try {
+        const response = await LeaveTeacherPostApi(formData);
+        if (response?.status === 200) {
+          if (response?.data?.status === "success") {
+            toast.success(response?.data?.msg);
+            // MyLeaveGetAllApi()
+            setShow(false)
+            setHide(true)
+            setLoader(false)
+          } else {
+            toast.error(response?.data?.msg);
+            setShow(true)
+          }
         } else {
           toast.error(response?.data?.msg);
-          setShow(true)
         }
-      } else {
-        toast.error(response?.data?.msg);
+      } catch (error) {
+        console.log(error)
       }
-    } catch (error) {
-      console.log(error)
     }
+
   }
 
   // Leave Get All Api 
@@ -566,8 +643,25 @@ const Leave = () => {
       console.log(error)
     }
   }
-
-
+  const MyGetallLeaveOfTeacher = async () => {
+    try {
+      var response = await getAllLeaveOfTeacherDataApi();
+      console.log(response, 'All leave data in line chartttttttt')
+      if (response?.status === 200) {
+        if (response?.data?.status === 'success') {
+          setLeaveAllData(response?.data?.leave);
+          // func();
+        }
+      }
+      else {
+        setloaderState(false);
+        console.log(response?.data?.msg);
+      }
+    }
+    catch (error) {
+      console.log('Error Facing during Get All Event API - ', error)
+    }
+  }
   const handleForDelete = () => {
     MyHolidayDeleteApi(IdForDelete)
   }
@@ -636,7 +730,7 @@ const Leave = () => {
                       <td className=' greyText'>{item.reason}</td>
                       <td className=' greyText'>
                         <div className=''>
-                          <p className={`font-background  ${item.approved === true ? 'font-background ' : 'font-background22'}`}>{item.approved === true ? 'Approved' : 'Reject' }</p>
+                          <p className={`font-background  ${item.approved === true ? 'font-background ' : 'font-background22'}`}>{item.approved === true ? 'Approved' : 'Reject'}</p>
                         </div>
                       </td>
                       <td className=' greyText'>
@@ -651,13 +745,6 @@ const Leave = () => {
                     </tr>
                   ))
                 }
-
-
-
-
-
-
-
 
               </tbody>
             </table>
@@ -705,19 +792,25 @@ const Leave = () => {
 
           <div className="row ms-2 pb-5">
             <p>Leave Details</p>
-            <div className="col-lg-2 col-md-3 col-sm-6 mt-2 pe-0">
-              <div className="conatiner-1 px-0">
-                <p>
-                  <svg className='mt-2' width="22" height="25" viewBox="0 0 29 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M25.7778 3.2H22.5556V0H19.3333V3.2H9.66667V0H6.44444V3.2H3.22222C1.44517 3.2 0 4.6352 0 6.4V28.8C0 30.5648 1.44517 32 3.22222 32H25.7778C27.5548 32 29 30.5648 29 28.8V6.4C29 4.6352 27.5548 3.2 25.7778 3.2ZM25.781 28.8H3.22222V9.6H25.7778L25.781 28.8Z" fill="#FF914C" />
-                    <path d="M13 13H16V21.125H13V13ZM13 22.75H16V26H13V22.75Z" fill="#FF914C" />
-                  </svg>
-                </p>
-                <p className='heading-14 pt-2'><b>Casual Leave</b></p>
-                <p className='heading-12 pt-2 pb-2' >Available - <span>0</span></p>
+            {
+              LeaveAllData?.map((item)=>(
+                <div className="col-lg-2 col-md-3 col-sm-6 mt-2 pe-0">
+                <div className="conatiner-1 px-0">
+                  <p>
+                    <svg className='mt-2' width="22" height="25" viewBox="0 0 29 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M25.7778 3.2H22.5556V0H19.3333V3.2H9.66667V0H6.44444V3.2H3.22222C1.44517 3.2 0 4.6352 0 6.4V28.8C0 30.5648 1.44517 32 3.22222 32H25.7778C27.5548 32 29 30.5648 29 28.8V6.4C29 4.6352 27.5548 3.2 25.7778 3.2ZM25.781 28.8H3.22222V9.6H25.7778L25.781 28.8Z" fill="#FF914C" />
+                      <path d="M13 13H16V21.125H13V13ZM13 22.75H16V26H13V22.75Z" fill="#FF914C" />
+                    </svg>
+                  </p>
+                  <p className='heading-14 pt-2'><b>{item.leaveType}</b></p>
+                  <p className='heading-12 pt-1 ' >Available - <span>{item.leaveCount}</span></p>
+                  <p className='heading-12 pt- pb-2' >Booked - <span>{item.bookedCount}</span></p>
+                </div>
               </div>
-            </div>
-            <div className="col-lg-2 col-md-3 col-sm-6 mt-2 pe-0">
+              ))
+            }
+           
+            {/* <div className="col-lg-2 col-md-3 col-sm-6 mt-2 pe-0">
               <div className="conatiner-1 px-0">
                 <p>
                   <svg className='mt-2' width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -795,7 +888,7 @@ const Leave = () => {
                 <p className='heading-14 pt-2'><b>Maternity Leave</b></p>
                 <p className='heading-12 pt-2 pb-2' >Available - <span>0</span></p>
               </div>
-            </div>
+            </div> */}
 
           </div>
         </div>
@@ -821,10 +914,10 @@ const Leave = () => {
                 <div class="offcanvas-body">
                   <div className="input " >
 
-                    <div className="mb-3" style={{ marginTop: '-6px' }}>
+                    {/* <div className="mb-3" style={{ marginTop: '-6px' }}>
                       <label for="exampleFormControlInput1" className="form-label  heading-14">Leave Apply</label>
                       <input type="date" className="form-control form-focus label-color  heading-14" onChange={(e) => setLeaveApply(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Select Leave Type" />
-                    </div>
+                    </div> */}
                     <div class="mb-3">
                       <label for="exampleFormControlInput1" class="form-label mb-1 label-text-color focus heading-14">Leave Type</label>
                       <select class="form-select  form-select-sm form-focus label-color" onChange={(e) => setLeaveType(e.target.value)} aria-label="Default select example">
@@ -838,22 +931,43 @@ const Leave = () => {
                     </div>
                     <div className="mb-3" style={{ marginTop: '-6px' }}>
                       <label for="exampleFormControlInput1" className="form-label  heading-14">From Date </label>
-                      <input type="date" className="form-control form-focus label-color  heading-14" onChange={(e) => setfromDate(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Select Leave Type" />
+                      <input type="date" className="form-control form-focus label-color  heading-14" onChange={(e) => handleFromDate(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Select Leave Type" />
+                    </div>
+                    <div className='pt-1'>
+                      {isValidFromDateRequired && (
+                        <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                        from date is required
+                        </p>
+                      )}
                     </div>
                     <div className="mb-3" style={{ marginTop: '-6px' }}>
                       <label for="exampleFormControlInput1" className="form-label  heading-14">To Date</label>
-                      <input type="date" className="form-control form-focus label-color  heading-14" onChange={(e) => setToDate(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Select Leave Type" />
+                      <input type="date" className="form-control form-focus label-color  heading-14" onChange={(e) => handleToDate(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Select Leave Type" />
+                    </div>
+                    <div className='pt-1'>
+                      {isValidToDateRequired && (
+                        <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                          To Date is required
+                        </p>
+                      )}
                     </div>
 
                     <div className="mb-3" style={{ marginTop: '-6px' }}>
                       <label for="exampleFormControlInput1" className="form-label  heading-14">Reason</label>
-                      <textarea class="form-control" placeholder="" id="floatingTextarea2" onChange={(e) => setReason(e.target.value)} style={{ height: "70px" }}></textarea>
+                      <textarea class="form-control" placeholder="" id="floatingTextarea2" onChange={(e) => handleReason(e.target.value)} style={{ height: "70px" }}></textarea>
+                    </div>
+                    <div className='pt-1'>
+                      {isValidReasonRequired && (
+                        <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                          Reason is required
+                        </p>
+                      )}
                     </div>
 
-                    <div className="mb-3" style={{ marginTop: '-6px' }}>
+                    {/* <div className="mb-3" style={{ marginTop: '-6px' }}>
                       <label for="exampleFormControlInput1" className="form-label  heading-14">Documents</label>
                       <input type="file" className="form-control form-focus label-color  heading-14" onChange={(e) => setLeaveType(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Select Leave Type" />
-                    </div>
+                    </div> */}
 
                     <div className='my-button11 '>
                       <button type="button" className="btn btn-outline-success my-button112233" onClick={MyTeacherLeaveApplyPostApi}>Submit</button>

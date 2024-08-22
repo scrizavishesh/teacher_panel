@@ -440,6 +440,10 @@ const OfflineExam = () => {
     const [sessionAllData, setSessionAllData] = useState([])
     const [classroomdata, setClassroomdata] = useState([])
 
+    const [isValidDateValiRequired, setIsValidDateValiRequired] = useState(false);
+    const [isValidMarksValiRequired, setIsValidMarksValiRequired] = useState(false);
+
+
     useEffect(() => {
         MyExamGetAllApi()
         // MySubjectByClassIdGetApi()
@@ -450,6 +454,52 @@ const OfflineExam = () => {
             MySubjectByClassIdGetApi()
         }
     }, [classId])
+
+
+    const [errors, setErrors] = useState({});
+    // ###### validation ##########
+
+    const FuncValidation = () => {
+        // marks 
+        if (marks === "" || !marks) {
+            setIsValidMarksValiRequired(true)
+        }
+        else {
+        }
+        // date
+        if (date === "" || !date) {
+            setIsValidDateValiRequired(true)
+        }
+        else {
+        }
+        return errors;
+    }
+    // marks 
+    const handleMarks = (e2) => {
+        setMarks(e2);
+        const noRegex = /^[0-9]+$/;
+        setIsValidMarksValiRequired(noRegex.test(e2));
+        if (e2 === "") {
+            setIsValidMarksValiRequired(true)
+        } else {
+            setIsValidMarksValiRequired(false)
+        }
+    }
+    // date 
+    const handleDate = (e2) => {
+        setDate(e2);
+        const dateRegex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+        setIsValidDateValiRequired(dateRegex.test(e2));
+
+        if (e2 === "") {
+            setIsValidDateValiRequired(true)
+        } else {
+            setIsValidDateValiRequired(false)
+        }
+    }
+
+    
+    // ###### validation ##########
 
     // Get All Api from class list page for id 
     const UpdatClassGetApi = async () => {
@@ -510,18 +560,16 @@ const OfflineExam = () => {
             const response = await ExamcategoryGetAll(searchKey);
             console.log('Exam Category-get-all-api in offline', response);
             if (response?.status === 200) {
-                toast.success(response?.data?.classes?.message)
+                toast.success(response?.data?.message)
                 setExamCategoryData(response?.data?.categories)
                 setLoader(false)
             } else {
-                toast.error(response?.data?.classes?.message);
+                toast.error(response?.data?.message);
             }
         } catch (error) {
             console.log(error)
         }
     }
-
-
     // ----------------------------------------- 
     // Exam Get All Api   
     const MyExamGetAllApi = async () => {
@@ -530,11 +578,11 @@ const OfflineExam = () => {
             const response = await OfflineExamGetAll(searchKey);
             console.log('Exam get All Api data', response);
             if (response?.status === 200) {
-                toast.success(response?.data?.msg)
+                toast.success(response?.data?.message)
                 setExamAllData(response?.data?.examDetails)
                 setLoader(false)
             } else {
-                toast.error(response?.data?.msg);
+                toast.error(response?.data?.message);
             }
         } catch (error) {
             console.log(error)
@@ -542,40 +590,41 @@ const OfflineExam = () => {
     }
 
     // Post api 
-
     const MyMarksPostApi = async () => {
-
-        const formData = new FormData()
-        formData.append('categoryId', examCategory);
-        formData.append('classId', classId);
-        formData.append('subjectId', subjectId);
-        formData.append('roomId', classRoomId);
-        formData.append('totalMarks', marks);
-        formData.append('date', date);
-        formData.append('startingTime', startTime);
-        formData.append('endingTime', endTime);
-
-        setLoader(true)
-        try {
-            const response = await OfflinePostApi(formData);
-            console.log('class-post-api on offline exam', response)
-            if (response?.status === 200) {
-                if (response?.data?.status === "success") {
-                    toast.success(response?.data?.msg);
-                    MyExamGetAllApi()
-                    setShow(false)
-                    setHide(true)
-                    setLoader(false)
+        if (FuncValidation()) {
+            const formData = new FormData()
+            formData.append('categoryId', examCategory);
+            formData.append('classId', classId);
+            formData.append('subjectId', subjectId);
+            formData.append('roomId', classRoomId);
+            formData.append('totalMarks', marks);
+            formData.append('date', date);
+            formData.append('startingTime', startTime);
+            formData.append('endingTime', endTime);
+    
+            setLoader(true)
+            try {
+                const response = await OfflinePostApi(formData);
+                console.log('class-post-api on offline exam', response)
+                if (response?.status === 200) {
+                    if (response?.data?.status === "success") {
+                        toast.success(response?.data?.msg);
+                        MyExamGetAllApi()
+                        setShow(false)
+                        setHide(true)
+                        setLoader(false)
+                    } else {
+                        toast.error(response?.data?.msg);
+                        setShow(true)
+                    }
                 } else {
                     toast.error(response?.data?.msg);
-                    setShow(true)
                 }
-            } else {
-                toast.error(response?.data?.msg);
+            } catch (error) {
+                console.log(error)
             }
-        } catch (error) {
-            console.log(error)
-        }
+          }
+     
     }
     // Delete api
     const MyOfflineExamDeleApi = async (id) => {
@@ -600,7 +649,7 @@ const OfflineExam = () => {
 
     // Get by id 
     const MyAssignLeaveGetByIdApi = async (id) => {
-        console.log('my idddd newwwww',id)
+        console.log('my idddd newwwww', id)
         setIdForUpdate(id)
         setLoader(true)
         try {
@@ -641,7 +690,7 @@ const OfflineExam = () => {
             formData.append('date', date)
             formData.append('endingTime', endTime)
 
-            const response = await OfflinePutApi(IdForUpdate,formData);
+            const response = await OfflinePutApi(IdForUpdate, formData);
 
             console.log('My_offline_Api', response)
             if (response?.status === 200) {
@@ -879,7 +928,14 @@ const OfflineExam = () => {
 
                                         <div className="mb-3 mt-3" style={{ marginTop: '-6px' }}>
                                             <label for="exampleFormControlInput1" className="form-label label-color heading-14">Date </label>
-                                            <input type="date" className="form-control form-focus   heading-14" onChange={(e) => setDate(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="100.00" />
+                                            <input type="date" className="form-control form-focus   heading-14" onChange={(e) => handleDate(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="100.00" />
+                                        </div>
+                                        <div className='pt-1'>
+                                            {isValidDateValiRequired && (
+                                                <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                                    Date is required
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="mb-3 mt-3" style={{ marginTop: '-6px' }}>
                                             <label for="exampleFormControlInput1" className="form-label label-color heading-14">Starting Time</label>
@@ -893,7 +949,14 @@ const OfflineExam = () => {
 
                                         <div className="mb-3 mt-3" style={{ marginTop: '-6px' }}>
                                             <label for="exampleFormControlInput1" className="form-label label-color heading-14">Total Marks </label>
-                                            <input type="email" className="form-control form-focus heading-14" onChange={(e) => setMarks(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Marks" />
+                                            <input type="email" className="form-control form-focus heading-14" onChange={(e) => handleMarks(e.target.value)} style={{ marginTop: '-4px' }} id="exampleFormControlInput1" placeholder="Marks" />
+                                        </div>
+                                        <div className='pt-1'>
+                                            {isValidMarksValiRequired && (
+                                                <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                                    Number is required
+                                                </p>
+                                            )}
                                         </div>
 
                                         <div className='my-button11 '>

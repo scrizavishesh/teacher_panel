@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import HashLoader from './HashLoaderCom';
-import { ClassGetApi } from '../Utils/Apis'
+import { SubmissionPostApi } from '../Utils/Apis'
+import { StudentGetAllDataApi } from '../Utils/Apis'
+import { SubmissiongetAllApi } from '../Utils/Apis'
+import { SubmissionDeleteApi } from '../Utils/Apis'
+import { SubmissionGEtByIdApi } from '../Utils/Apis'
+import { SubmissionUpdateApi } from '../Utils/Apis'
 // ## style css area start ####  
 
 const Container = styled.div`
@@ -470,476 +475,581 @@ border-color: #B50000;
 // ## style css area end ####  
 
 const Assignmnt_submss = () => {
-    const [loader, setLoader] = useState(false)
-    const [forDelete, setForDelete] = useState(false)
 
-    const [hide, setHide] = useState(false)
-    const [show, setShow] = useState(true)
+  const [loader, setLoader] = useState(false)
+  const [forDelete, setForDelete] = useState(false)
 
-    const [showdelete, setShowdelete] = useState(true)
-    const [hidedelete, setHidedelete] = useState(false)
-    const [setClassdata, setSetClassdata] = useState([])
-    const [sectionData, setSectionData] = useState([])
-    const [subjectData, setSubjectData] = useState([])
-    const [examCategoryData, setExamCategoryData] = useState([])
-    const [sessionAllData, setSessionAllData] = useState([])
-    const [marksAllData, setMarksAllData] = useState([])
-    const [IdForDelete, setIdForDelete] = useState()
-    const [IdForUpdate, setIdForUpdate] = useState()
-    const [showadd, setShowadd] = useState(true)
-    const [hideedit, setHideedit] = useState(false)
+  const [hide, setHide] = useState(false)
+  const [show, setShow] = useState(true)
 
+  const [showdelete, setShowdelete] = useState(true)
+  const [hidedelete, setHidedelete] = useState(false)
+  const [setClassdata, setSetClassdata] = useState([])
+  const [sectionData, setSectionData] = useState([])
+  const [studentData, setStudentData] = useState([])
+  const [examCategoryData, setExamCategoryData] = useState([])
+  const [sessionAllData, setSessionAllData] = useState([])
+  const [marksAllData, setMarksAllData] = useState([])
+  const [submissionData, setSubmissionData] = useState([])
+  const [IdForDelete, setIdForDelete] = useState()
+  console.log('id for delete',IdForDelete)
+  const [IdForUpdate, setIdForUpdate] = useState()
+  const [showadd, setShowadd] = useState(true)
+  const [hideedit, setHideedit] = useState(false)
 
-    return (
-        <Container>
-            {
-                loader && (
-                    <HashLoader />
-                )
-            }
-            <div className="container-fluid main-body p-3">
+  const [studentName, setStudentName] = useState()
+  const [marks, setMarks] = useState()
+  const [status, setStatus] = useState()
 
-                <div className='d-flex justify-content-between for-dislay-direction'>
-                    <div className="breadCrum ms-2">
-                        <nav style={{ '--bs-breadcrumb-divider': "'>'" }} aria-label="breadcrumb">
-                            <ol className="breadcrumb ms-2">
-                                <li className="breadcrumb-item active heading-14 font-color" aria-current="page">Home</li>
-                                {/* <li className="breadcrumb-item active heading-14 font-color" aria-current="page">Accounting</li> */}
-                                <li className="breadcrumb-item breadcrum-li heading-14" ><Link href="#">Assignments</Link></li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div className='d-flex g-1 for-media-query'>
-                        {/* <div className='me-2 search-responsive'>
+  const { id, sectionId, totalMarks } = useParams();
+
+  console.log('marksss from assignmntt', totalMarks)
+
+  useEffect(() => {
+    MyStudentGetAllApi()
+    MySubmissionGetAllApi()
+  }, [])
+  
+  // Get student by section
+  const MyStudentGetAllApi = async () => {
+    setLoader(true)
+    try {
+      const response = await StudentGetAllDataApi(sectionId);
+      console.log('Student all data in submission in assigmnt', response);
+      if (response?.status === 200) {
+        toast.success(response?.data?.message)
+        setStudentData(response?.data?.student)
+        setLoader(false)
+      } else {
+        toast.error(response?.data?.message);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // post api 
+
+  const MySubmissionPostApi = async () => {
+
+    const formData = new FormData()
+    formData.append('studentId', studentName);
+    formData.append('marks', totalMarks);
+    formData.append('status', status);
+
+    setLoader(true)
+    try {
+      const response = await SubmissionPostApi(id, formData);
+      if (response?.status === 200) {
+        if (response?.data?.status === "success") {
+          toast.success(response?.data?.msg);
+          setHidedelete(true)
+          MySubmissionGetAllApi()
+          setLoader(false)
+          setShow(false)
+          setHide(true)
+        } else {
+          toast.error(response?.data?.msg);
+          // setShow(true)
+        }
+      } else {
+        toast.error(response?.data?.msg);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  // Get All submission 
+  const MySubmissionGetAllApi = async () => {
+    setLoader(true)
+    try {
+      const response = await SubmissiongetAllApi(id);
+      console.log('Submission get all data', response);
+      if (response?.status === 200) {
+        toast.success(response?.data?.message)
+        setSubmissionData(response?.data?.submission)
+        setLoader(false)
+      } else {
+        toast.error(response?.data?.message);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // Delete api
+  const MySubmissionDeleteApi = async () => {
+    setLoader(true)
+
+    // const formData = new FormData()
+    // formData.append('assignmentId', id);
+    // formData.append('submissionId', IdForDelete);
+
+    try {
+      const response = await SubmissionDeleteApi(id,IdForDelete);
+      // console.log('my-subs-api',response)
+      if (response?.status === 200) {
+        toast.success(response?.data?.msg);
+        MySubmissionGetAllApi()
+        setShowdelete(false)
+        setHidedelete(true)
+        setLoader(false)
+      } else {
+        toast.error(response?.data?.msg);
+        setShowdelete(true)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+   // Get by id 
+   const MySubmissionGetByIdApi = async (id) => {
+    setIdForUpdate(id)
+    setLoader(true)
+    try {
+      const response = await SubmissionGEtByIdApi(id);
+      console.log('Submission get by id data', response);
+      if (response?.status === 200) {
+        toast.success(response?.data?.message)
+
+        setStudentName(response?.data?.submission?.studentId)
+        setStatus(response?.data?.submission?.status)
+
+        setLoader(false)
+      } else {
+        toast.error(response?.data?.message);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  // put api 
+
+  const MySubmissionUpdateApi = async () => {
+
+    const formData = new FormData()
+    formData.append('studentId', studentName);
+    formData.append('marks', totalMarks);
+    formData.append('status', status);
+
+    setLoader(true)
+    try {
+      const response = await SubmissionUpdateApi(IdForUpdate, formData);
+      if (response?.status === 200) {
+        if (response?.data?.status === "success") {
+          toast.success(response?.data?.msg);
+          MySubmissionGetAllApi()
+          setLoader(false)
+          setShowadd(false)
+          setHideedit(true)
+        } else {
+          toast.error(response?.data?.msg);
+          setShowadd(true)
+        }
+      } else {
+        toast.error(response?.data?.msg);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  return (
+    <Container>
+      {
+        loader && (
+          <HashLoader />
+        )
+      }
+      <div className="container-fluid main-body p-3">
+
+        <div className='d-flex justify-content-between for-dislay-direction'>
+          <div className="breadCrum ms-2">
+            <nav style={{ '--bs-breadcrumb-divider': "'>'" }} aria-label="breadcrumb">
+              <ol className="breadcrumb ms-2">
+                <li className="breadcrumb-item active heading-14 font-color" aria-current="page">Home</li>
+                {/* <li className="breadcrumb-item active heading-14 font-color" aria-current="page">Accounting</li> */}
+                <li className="breadcrumb-item breadcrum-li heading-14" ><Link href="#">Assignments</Link></li>
+              </ol>
+            </nav>
+          </div>
+          <div className='d-flex g-1 for-media-query'>
+            {/* <div className='me-2 search-responsive'>
                             <div className="input-group mb-3 ">
                                 <input type="text" className="form-control form-focus font-color" style={{ height: '34px' }} placeholder="Search" aria-label="Recipient's username" aria-describedby="basic-addon2" />
                                 <span className="input-group-text button-bg-color button-color heading-14 font-color " style={{ cursor: 'pointer', height: "34px" }} id="basic-addon2">Search</span>
                             </div>
                         </div> */}
-                        <Link type="button" className="btn btn-success heading-16 my-own-button me-3 " data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" to={''}>+ Add Submission</Link>
-                    </div>
+            <Link type="button" className="btn btn-success heading-16 my-own-button me-3 " data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" to={''}>+ Add Submission</Link>
+          </div>
+        </div>
+        <h5 className='ms-3 mb-2 margin-minus22 heading-16' style={{ marginTop: '-12px' }}> Submission Details</h5>
+
+        <div className="main-content-conatainer pt-1 ">
+          {/* ###### copy content till here for all component ######  */}
+
+
+          <div className="row mt-4 mb-4 bg-color-pink p-3 m-3">
+            <div className="col-12 ">
+              <div className="row heading-16 ">
+                <div className="col-3 p-0 ps-5">
+                  <span className='heading-16 greyText'>  <b>Submission - </b></span>
+                  Board test
                 </div>
-                <h5 className='ms-3 mb-2 margin-minus22 heading-16' style={{ marginTop: '-12px' }}> Submission Details</h5>
-
-                <div className="main-content-conatainer pt-1 ">
-                    {/* ###### copy content till here for all component ######  */}
-                   
-    
-                    <div className="row mt-4 mb-4 bg-color-pink p-3 m-3">
-                        <div className="col-12 ">
-                            <div className="row heading-16 ">
-                                <div className="col-3 p-0 ps-5">
-                                    <span className='heading-16 greyText'>  <b>Submission - </b></span>
-                                    Board test
-                                </div>
-                                <div className="col-2 p-0 ps-4">
-                                    <span className='heading-16 greyText'><b>Class -</b></span>
-                                    1
-                                </div>
-                                <div className="col-2 p-0">
-                                    <span className='heading-16 greyText'> <b>Section -</b></span>
-                                    A
-                                </div>
-                               
-
-                            </div>
-                        </div>
-                        <div className="col-1"></div>
-                    </div>
-                    <div className="table-container px-3 table-responsive">
-                        <table className="table table-sm table-striped">
-                            <thead className=''>
-                                <tr className='heading-16 text-color-000' style={{ fontWeight: '500' }}>
-                                    <th className='' style={{ width: '100px' }}>#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th >Status</th>
-                                    <th>Result</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody className='heading-14 align-middle greyTextColor'>
-
-                                {/* {
-                                    marksAllData.map((item, index) => (
-                                        <tr className='heading-14' >
-                                            <td className=' greyText'>{index + 1}</td>
-                                            <td className=' greyText' >{item.studentName}</td>
-                                            <td className=' greyText' >{item.studentName}</td>
-                                            <td className=' greyText' >{item.studentName}</td>
-                                            <td className=' greyText' >{item.studentName}</td>
-                                            <td className=' greyText' >{item.studentName}</td>
-                                        </tr>
-                                    ))} */}
-
-
-
-
-                            </tbody>
-                            <Toaster />
-                        </table>
-                    </div>
-
-                    <div className="row ">
-                        <div className='d-flex justify-content-between px-5'>
-                            <div className='heading-13'>
-                                <p>Showing 1 to 10 entries</p>
-                            </div>
-                            <div >
-                                <nav aria-label="Page navigation example">
-                                    <ul className="pagination my-pagina " >
-                                        <li className="page-item">
-                                            <a className="page-link pagination-a" href="#" aria-label="Previous">
-                                                <span aria-hidden="true">
-                                                    <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M8 0.84875L7.1375 0L0 7L7.1375 14L8 13.1556L1.72917 7L8 0.84875Z" fill="black" />
-                                                    </svg>
-                                                </span>
-                                            </a>
-                                            &nbsp;
-                                        </li>
-                                        &nbsp;
-                                        <li className="page-item"><a className="page-link pagination-a" href="#">1</a></li>&nbsp;
-                                        <li className="page-item"><a className="page-link pagination-a" href="#">2</a></li>&nbsp;
-                                        <li className="page-item"><a className="page-link pagination-a" href="#">3</a></li>&nbsp;
-                                        <li className="page-item"><a className="page-link pagination-a" href="#">4</a></li>&nbsp;
-                                        <li className="page-item"><a className="page-link pagination-a" href="#">5</a></li>&nbsp;
-                                        <li className="page-item">
-                                            <a className="page-link pagination-a" href="#" aria-label="Next" >
-                                                <span aria-hidden="true">
-                                                    <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M0 0.84875L0.8625 0L8 7L0.8625 14L0 13.1556L6.27083 7L0 0.84875Z" fill="black" />
-                                                    </svg>
-
-                                                </span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-
-                    </div>
+                <div className="col-2 p-0 ps-4">
+                  <span className='heading-16 greyText'><b>Class -</b></span>
+                  1
                 </div>
-                {/* ################## Off Canvas Area ####################  */}
-
-                {/* ##### offcanvas added start ########  */}
-                <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-                    {
-                        show && (
-                            <>
-                                <div className="offcanvas-header">
-                                    <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
-                                    <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Add Submissions</h5>
-                                </div>
-                                <hr className='' style={{ marginTop: '-3px' }} />
-                                <div className="offcanvas-body pt-0">
-                                    <div class="mb-3">
-                                        <label for="exampleFormControlInput1" class="form-label heading-16">Student Name</label>
-                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="Select Title" />
-                                    </div>
-                                    <div>
-                                        {/* {isValidNameRequired && (
-                      <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
-                        Title is required
-                      </p>
-                    )} */}
-                                    </div>
-
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label  heading-16">Class</label>
-                                        <select class="form-select  form-select-sm form-focus  label-color" aria-label="Default select example">
-                                            <option selected>--Choose--</option>
-                                            {/* {
-                        classData.map(item =>
-                          <option value={`${item.classId} , ${item.classNo}`}>{item.classNo}</option>
-                        )
-                      } */}
-                                        </select>
-                                    </div>
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label   heading-16">Section</label>
-                                        <select class="form-select  form-select-sm form-focus   label-color" aria-label="Default select example">
-                                            <option selected>--Choose--</option>
-                                            {/* {
-                        sectionData.map(item =>
-                          <option value={item.sectionName}>{item.sectionName}</option>
-                        )
-                      } */}
-                                        </select>
-                                    </div>
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label  heading-16">Subject</label>
-                                        <select class="form-select  form-select-sm form-focus  label-color" aria-label="Default select example">
-                                            <option selected>--Choose--</option>
-                                            {/* {
-                        subjectData.map(item =>
-                          <option value={item.subjectName}>{item.subjectName}</option>
-                        )
-                      } */}
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="exampleFormControlInput1" class="form-label heading-16">Result</label>
-                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="Select Title" />
-                                    </div>
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label  heading-16">Status</label>
-                                        <select class="form-select  form-select-sm form-focus  label-color" aria-label="Default select example">
-                                            <option selected>--Choose--</option>
-                                            {/* {
-                        subjectData.map(item =>
-                          <option value={item.subjectName}>{item.subjectName}</option>
-                        )
-                      } */}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        {/* {isImageValidRequired && (
-                      <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
-                        jpg and png supported
-                      </p>
-                    )} */}
-                                    </div>
-
-
-
-                                    <div className='my-button11 '>
-                                        <button type="button" className="btn btn-outline-success heading-16 btn-bgAndColor" >Add Submissions</button>
-                                        <button type="button" className="btn btn-outline-success heading-16">Cancel</button>
-                                    </div>
-                                </div>
-
-                            </>
-
-
-                        )
-                    }
-                    {/* ################# After click ###############  */}
-                    {
-                        hide && (
-                            <div className="container-fluid">
-                                <div className="offcanvas-header">
-                                    <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
-                                    <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Successfully Message</h5>
-                                </div>
-                                <hr className='' style={{ marginTop: '-3px' }} />
-                                <div className="delete-section  mt-5">
-                                    <div className="bg-container">
-                                        <div className="img-container">
-                                            <img src="./images/XMLID_1_.png" alt="" />
-                                        </div>
-                                        <div className="content mt-5">
-                                            <p >Successful Added</p>
-                                            <hr style={{ width: '' }} />
-                                            <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your Changes has been <br /> Successfully Saved</p>
-                                        </div>
-                                        <div className='button-position'>
-                                            <button type="button" data-bs-dismiss="offcanvas" className="btn btn-outline-primary button11 mt-4 mb" style={{ fontSize: '14px' }}>Continue</button>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    }
-                    {/* ##### offcanvase added  end ########  */}
-
+                <div className="col-2 p-0">
+                  <span className='heading-16 greyText'> <b>Section -</b></span>
+                  A
                 </div>
-                {/* ##### offcanvas edit start ########  */}
-                <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight1234" aria-labelledby="offcanvasRightLabel">
-                    {
-                        showadd && (
-                            <>
-                                <div className="offcanvas-header">
-                                    <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
-                                    <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Edit Class Routine</h5>
-                                </div>
-                                <hr className='' style={{ marginTop: '-3px' }} />
-                                <div className="offcanvas-body pt-0">
-                                    <div class="mb-3">
-                                        <label for="exampleFormControlInput1" class="form-label heading-16">Title</label>
-                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="Select Class" />
-                                    </div>
-                                    <div>
-                                        {/* {isValidNameRequired && (
-                      <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
-                        Title is required
-                      </p>
-                    )} */}
-                                    </div>
-
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label heading-16">Class</label>
-                                        <select class="form-select  form-select-sm form-focus label-color" aria-label="Default select example">
-                                            <option selected >--Choose--</option>
-                                            {/* {
-                        classData.map(item =>
-                          <option value={`${item.classId} , ${item.classNo}`}>{item.classNo}</option>
-                        )
-                      } */}
-                                        </select>
-                                    </div>
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label   heading-16">Section</label>
-                                        <select class="form-select  form-select-sm form-focus  label-color" aria-label="Default select example">
-                                            <option selected>--Choose--</option>
-                                            {/* {
-                        sectionData.map(item =>
-                          <option value={item.sectionName}>{item.sectionName}</option>
-                        )
-                      } */}
-                                        </select>
-                                    </div>
-                                    <div className="mb-1  ">
-                                        <label for="exampleFormControlInput1" className="form-label  heading-16">Subject</label>
-                                        <select class="form-select  form-select-sm form-focus label-color" aria-label="Default select example">
-                                            <option selected>--Choose--</option>
-                                            {/* {
-                      subjectData.map(item =>
-                        <option value={item.subjectName}>{item.subjectName}</option>
-                      )
-                    } */}
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="exampleFormControlInput1" class="form-label heading-16">Upload Syllabus</label>
-                                        <input type="file" class="form-control form-control-sm" value={''} id="exampleFormControlInput1" placeholder="Select File" />
-                                    </div>
-                                    <div>
-                                        {/* {isImageValidRequired && (
-                      <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
-                        jpg and png supported
-                      </p>
-                    )} */}
-                                    </div>
-
-                                    <div className='my-button11'>
-                                        <button type="button" className="btn btn-outline-success heading-16 btn-bgAndColor" >Update Syllabus</button>
-                                        <button type="button" className="btn btn-outline-success heading-16">Cancel</button>
-                                    </div>
-                                </div>
-
-                            </>
 
 
-                        )
-                    }
-                    {/* ################# After click ###############  */}
-                    {
-                        hideedit && (
-                            <div className="container-fluid">
-                                <div className="offcanvas-header">
-                                    <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
-                                    <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Successfully Message</h5>
-                                </div>
-                                <hr className='' style={{ marginTop: '-3px' }} />
-                                <div className="delete-section  mt-5">
-                                    <div className="bg-container">
-                                        <div className="img-container">
-                                            <img src="./images/XMLID_1_.png" alt="" />
-                                        </div>
-                                        <div className="content mt-5">
-                                            <p >Successful Edit</p>
-                                            <hr style={{ width: '' }} />
-                                            <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your Changes has been <br /> Successfully Saved</p>
-                                        </div>
-                                        <div className='button-position'>
-                                            <button type="button" data-bs-dismiss="offcanvas" className="btn btn-outline-primary button11 mt-4 mb" style={{ fontSize: '14px' }}>Continue</button>
-                                        </div>
+              </div>
+            </div>
+            <div className="col-1"></div>
+          </div>
+          <div className="table-container px-3 table-responsive">
+            <table className="table table-sm table-striped">
+              <thead className=''>
+                <tr className='heading-16 text-color-000' style={{ fontWeight: '500' }}>
+                  <th className='' style={{ width: '15%' }}>#</th>
+                  <th style={{ width: '25%' }}>Name</th>
+                  <th style={{ width: '25%' }}>Email</th>
+                  <th >Status</th>
+                  <th>Result</th>
+                  <th>Action</th>
 
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    }
-                    {/* ##### offcanvase edit end ########  */}
-                </div>
-                {/* ################ offcanvas delete start #############  */}
+                </tr>
+              </thead>
+              <tbody className='heading-14 align-middle greyTextColor'>
+                {
+                  submissionData.map((item, index) => (
+                    <tr className='heading-14' >
+                      <td className=' greyText'>{index + 1}</td>
+                      <td className=' greyText' >{item.studentName}</td>
+                      <td className=' greyText' >{item.studentEmail}</td>
+                      <td className=' greyText' >{item.status === true ? "Active" : "Inactive"}</td>
+                      <td className=' greyText' >{item.marks}</td>
+                      <td className=' greyText  pe-0' >
+                          <div className="dropdown my-button-show">
+                            <button className="btn btn-secondary dropdown-togg my-button-drop tableActionButtonBgColor text-color-000 heading-14" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Action &nbsp;
+                              <svg width="11" height="7" viewBox="0 0 11 7" fill="none" xmlns="">
+                                <path d="M10.3331 0L11 0.754688L5.5 7L0 0.754688L0.663438 0L5.5 5.48698L10.3331 0Z" fill="black" />
+                              </svg>
+                            </button>
+                            <ul className="dropdown-menu anchor-color heading-14">
+                              <li><Link className="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight1234" aria-controls="staticBackdrop" onClick={() => MySubmissionGetByIdApi(item.id)} >Edit</Link></li>
+                              <li><Link className="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight22" aria-controls="staticBackdrop" onClick={() => setIdForDelete(item.id)}>Delete</Link></li>
+                              <Toaster />
+                            </ul>
+                          </div>
+                        </td>
+                    </tr>
+                  ))}
 
-                <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight22" aria-labelledby="offcanvasRightLabel">
+              </tbody>
+              <Toaster />
+            </table>
+          </div>
 
-                    {
-                        showdelete && (
-                            <div className="container-fluid">
-                                <div className="offcanvas-header p-0 pt-3">
-                                    <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
-                                    <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Delete Section</h5>
-                                </div>
-                                <hr className='' />
+          <div className="row ">
+            <div className='d-flex justify-content-between px-5'>
+              <div className='heading-13'>
+                <p>Showing 1 to 10 entries</p>
+              </div>
+              <div >
+                <nav aria-label="Page navigation example">
+                  <ul className="pagination my-pagina " >
+                    <li className="page-item">
+                      <a className="page-link pagination-a" href="#" aria-label="Previous">
+                        <span aria-hidden="true">
+                          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 0.84875L7.1375 0L0 7L7.1375 14L8 13.1556L1.72917 7L8 0.84875Z" fill="black" />
+                          </svg>
+                        </span>
+                      </a>
+                      &nbsp;
+                    </li>
+                    &nbsp;
+                    <li className="page-item"><a className="page-link pagination-a" href="#">1</a></li>&nbsp;
+                    <li className="page-item"><a className="page-link pagination-a" href="#">2</a></li>&nbsp;
+                    <li className="page-item"><a className="page-link pagination-a" href="#">3</a></li>&nbsp;
+                    <li className="page-item"><a className="page-link pagination-a" href="#">4</a></li>&nbsp;
+                    <li className="page-item"><a className="page-link pagination-a" href="#">5</a></li>&nbsp;
+                    <li className="page-item">
+                      <a className="page-link pagination-a" href="#" aria-label="Next" >
+                        <span aria-hidden="true">
+                          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0.84875L0.8625 0L8 7L0.8625 14L0 13.1556L6.27083 7L0 0.84875Z" fill="black" />
+                          </svg>
 
-                                <div className="offcanvas-body">
-
-                                    <div className="sure-main-container mt-4">
-                                        <div className="sure-container">
-                                            <div>
-                                                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M29.5312 0.46875C13.2656 0.46875 0 13.7344 0 30C0 46.2656 13.2656 59.5312 29.5312 59.5312C45.7969 59.5312 59.0625 46.2656 59.0625 30C59.0625 13.7344 45.7969 0.46875 29.5312 0.46875ZM29.5312 55.7812C15.3281 55.7812 3.75 44.2031 3.75 30C3.75 15.7969 15.3281 4.21875 29.5312 4.21875C43.7344 4.21875 55.3125 15.7969 55.3125 30C55.3125 44.2031 43.7344 55.7812 29.5312 55.7812Z" fill="#B50000" />
-                                                    <path d="M31.4062 25.5469H27.6562V44.2969H31.4062V25.5469Z" fill="#B50000" />
-                                                    <path d="M31.4062 16.6406H27.6562V20.3906H31.4062V16.6406Z" fill="#B50000" />
-                                                </svg>
-                                            </div>
-
-                                            <div className="sure-content mt-2">
-                                                <h5 className='heading-20'>Are you sure?</h5>
-                                                <p>This Action will be permanently <br /> delete the Profile Data</p>
-                                            </div>
-                                            <div className="form-check mt-1">
-                                                <input className="form-check-input my-form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                                                <label className="form-check-label agree" for="flexCheckDefault">
-                                                    I Agree to delete the Profile Data
-                                                </label>
-                                            </div>
-
-                                            <div className="mt-4">
-                                                <button type="button" className="btn my-btn  button00 my-button112233RedDelete" disabled={forDelete ? false : true}  >Delete</button>
-                                                <button type="button" className="btn cancel-btn ms-2" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        )
-                    }
-                    {/* ############## After click ##############  */}
-
-                    {
-                        hidedelete && (
-                            <div className="container-fluid">
-                                <div className="offcanvas-header p-0 pt-3">
-                                    <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
-                                    <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Successfull Message</h5>
-                                </div>
-                                <hr className='' />
-                                <div className="delete-section mt-5">
-                                    <div className="bg-container">
-                                        <div className="img-container22">
-                                            <img src="./images/XMLID_1_.png" alt="" />
-                                        </div>
-                                        <div className="content mt-5">
-                                            <p className='heading-20'>Successful Delete</p>
-                                            <hr style={{ width: '' }} />
-                                            <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your profile has been <br /> Successfully Delete</p>
-                                        </div>
-                                        <div className='button-position'>
-                                            <button type="button" className="btn btn-outline-primary button11 mt-4 mb my-button112233" data-bs-dismiss="offcanvas" aria-label="Close" style={{ fontSize: '14px' }}>Continue</button>
-
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                        )
-                    }
-                </div>
-                {/* ################ offcanvas delete end #############  */}
+                        </span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
 
-        </Container>
-    )
+          </div>
+        </div>
+        {/* ################## Off Canvas Area ####################  */}
+
+        {/* ##### offcanvas added start ########  */}
+        <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+          {
+            show && (
+              <>
+                <div className="offcanvas-header">
+                  <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
+                  <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Add Submissions</h5>
+                </div>
+                <hr className='' style={{ marginTop: '-3px' }} />
+                <div className="offcanvas-body pt-0">
+                  <div className="mb-1  ">
+                    <label for="exampleFormControlInput1" className="form-label  heading-16">Student Name</label>
+                    <select class="form-select  form-select-sm form-focus  label-color" onChange={(e) => setStudentName(e.target.value)} aria-label="Default select example">
+                      <option selected>--Choose--</option>
+                      {
+                        studentData.map(item =>
+                          <option value={item.studentId}>{item.studentName}</option>
+                        )
+                      }
+                    </select>
+                  </div>
+                  <div>
+
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label heading-16">Marks</label>
+                    <input type="email" class="form-control form-control-sm" value={totalMarks} onChange={(e) => setMarks(e.target.value)} id="exampleFormControlInput1" placeholder="Select Title" disabled />
+                  </div>
+                  <div className="mb-1  ">
+                    <label for="exampleFormControlInput1" className="form-label heading-16">Status</label>
+                    <select class="form-select  form-select-sm form-focus  label-color" onChange={(e) => setStatus(e.target.value)} aria-label="Default select example">
+                      <option selected>--Choose--</option>
+                      <option value="true">True</option>
+                      <option value="false">False</option>
+
+                    </select>
+                  </div>
+                  <div>
+                  </div>
+
+                  <div className='my-button11 '>
+                    <button type="button" className="btn btn-outline-success heading-16 btn-bgAndColor" onClick={MySubmissionPostApi}>Add Submissions</button>
+                    <button type="button" className="btn btn-outline-success heading-16">Cancel</button>
+                  </div>
+                </div>
+
+              </>
+
+
+            )
+          }
+          {/* ################# After click ###############  */}
+          {
+            hide && (
+              <div className="container-fluid">
+                <div className="offcanvas-header">
+                  <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
+                  <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Successfully Message</h5>
+                </div>
+                <hr className='' style={{ marginTop: '-3px' }} />
+                <div className="delete-section  mt-5">
+                  <div className="bg-container">
+                    <div className="img-container">
+                      <img src="./images/XMLID_1_.png" alt="" />
+                    </div>
+                    <div className="content mt-5">
+                      <p >Successful Added</p>
+                      <hr style={{ width: '' }} />
+                      <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your Changes has been <br /> Successfully Saved</p>
+                    </div>
+                    <div className='button-position'>
+                      <button type="button" data-bs-dismiss="offcanvas" className="btn btn-outline-primary button11 mt-4 mb" style={{ fontSize: '14px' }}>Continue</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          {/* ##### offcanvase added  end ########  */}
+
+        </div>
+        {/* ##### offcanvas edit start ########  */}
+        <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight1234" aria-labelledby="offcanvasRightLabel">
+          {
+            showadd && (
+              <>
+                <div className="offcanvas-header">
+                  <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
+                  <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Edit Submission</h5>
+                </div>
+                <hr className='' style={{ marginTop: '-3px' }} />
+                <div className="offcanvas-body pt-0">
+                  <div className="mb-1  ">
+                    <label for="exampleFormControlInput1" className="form-label  heading-16">Student Name</label>
+                    <select class="form-select  form-select-sm form-focus  label-color" value={studentName} onChange={(e) => setStudentName(e.target.value)} aria-label="Default select example">
+                      <option selected>--Choose--</option>
+                      {
+                        studentData.map(item =>
+                          <option value={item.studentId}>{item.studentName}</option>
+                        )
+                      }
+                    </select>
+                  </div>
+                  <div>
+
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label heading-16">Marks</label>
+                    <input type="email" class="form-control form-control-sm" value={totalMarks} onChange={(e) => setMarks(e.target.value)} id="exampleFormControlInput1" placeholder="Select Title" disabled />
+                  </div>
+                  <div className="mb-1  ">
+                    <label for="exampleFormControlInput1" className="form-label heading-16">Status</label>
+                    <select class="form-select  form-select-sm form-focus  label-color" value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Default select example">
+                      <option selected>--Choose--</option>
+                      <option value="true">True</option>
+                      <option value="false">False</option>
+
+                    </select>
+                  </div>
+                  <div>
+                  </div>
+
+                  <div className='my-button11 '>
+                    <button type="button" className="btn btn-outline-success heading-16 btn-bgAndColor" onClick={MySubmissionUpdateApi}>Update Submissions</button>
+                    <button type="button" className="btn btn-outline-success heading-16">Cancel</button>
+                  </div>
+                </div>
+
+              </>
+
+
+            )
+          }
+          {/* ################# After click ###############  */}
+          {
+            hideedit && (
+              <div className="container-fluid">
+                <div className="offcanvas-header">
+                  <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
+                  <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Successfully Message</h5>
+                </div>
+                <hr className='' style={{ marginTop: '-3px' }} />
+                <div className="delete-section  mt-5">
+                  <div className="bg-container">
+                    <div className="img-container">
+                      <img src="./images/XMLID_1_.png" alt="" />
+                    </div>
+                    <div className="content mt-5">
+                      <p >Successful Edit</p>
+                      <hr style={{ width: '' }} />
+                      <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your Changes has been <br /> Successfully Saved</p>
+                    </div>
+                    <div className='button-position'>
+                      <button type="button" data-bs-dismiss="offcanvas" className="btn btn-outline-primary button11 mt-4 mb" style={{ fontSize: '14px' }}>Continue</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          {/* ##### offcanvase edit end ########  */}
+        </div>
+        {/* ################ offcanvas delete start #############  */}
+
+        <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight22" aria-labelledby="offcanvasRightLabel">
+
+          {
+            showdelete && (
+              <div className="container-fluid">
+                <div className="offcanvas-header p-0 pt-3">
+                  <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
+                  <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Delete Section</h5>
+                </div>
+                <hr className='' />
+
+                <div className="offcanvas-body">
+
+                  <div className="sure-main-container mt-4">
+                    <div className="sure-container">
+                      <div>
+                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M29.5312 0.46875C13.2656 0.46875 0 13.7344 0 30C0 46.2656 13.2656 59.5312 29.5312 59.5312C45.7969 59.5312 59.0625 46.2656 59.0625 30C59.0625 13.7344 45.7969 0.46875 29.5312 0.46875ZM29.5312 55.7812C15.3281 55.7812 3.75 44.2031 3.75 30C3.75 15.7969 15.3281 4.21875 29.5312 4.21875C43.7344 4.21875 55.3125 15.7969 55.3125 30C55.3125 44.2031 43.7344 55.7812 29.5312 55.7812Z" fill="#B50000" />
+                          <path d="M31.4062 25.5469H27.6562V44.2969H31.4062V25.5469Z" fill="#B50000" />
+                          <path d="M31.4062 16.6406H27.6562V20.3906H31.4062V16.6406Z" fill="#B50000" />
+                        </svg>
+                      </div>
+
+                      <div className="sure-content mt-2">
+                        <h5 className='heading-20'>Are you sure?</h5>
+                        <p>This Action will be permanently <br /> delete the Profile Data</p>
+                      </div>
+                      <div className="form-check mt-1">
+                        <input className="form-check-input my-form-check-input" onClick={()=> setForDelete(true)} type="checkbox" value="" id="flexCheckDefault" />
+                        <label className="form-check-label agree" for="flexCheckDefault">
+                          I Agree to delete the Profile Data
+                        </label>
+                      </div>
+
+                      <div className="mt-4">
+                        <button type="button" className="btn my-btn  button00 my-button112233RedDelete" disabled={forDelete ? false : true}  onClick={()=> MySubmissionDeleteApi(IdForDelete)}>Delete</button>
+                        <button type="button" className="btn cancel-btn ms-2" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            )
+          }
+          {/* ############## After click ##############  */}
+
+          {
+            hidedelete && (
+              <div className="container-fluid">
+                <div className="offcanvas-header p-0 pt-3">
+                  <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
+                  <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Successfull Message</h5>
+                </div>
+                <hr className='' />
+                <div className="delete-section mt-5">
+                  <div className="bg-container">
+                    <div className="img-container22">
+                      <img src="./images/XMLID_1_.png" alt="" />
+                    </div>
+                    <div className="content mt-5">
+                      <p className='heading-20'>Successful Delete</p>
+                      <hr style={{ width: '' }} />
+                      <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your profile has been <br /> Successfully Delete</p>
+                    </div>
+                    <div className='button-position'>
+                      <button type="button" className="btn btn-outline-primary button11 mt-4 mb my-button112233" data-bs-dismiss="offcanvas" aria-label="Close" style={{ fontSize: '14px' }}>Continue</button>
+
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            )
+          }
+        </div>
+        {/* ################ offcanvas delete end #############  */}
+      </div>
+
+    </Container>
+  )
 }
 
 export default Assignmnt_submss

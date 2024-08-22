@@ -3,14 +3,11 @@ import styled from 'styled-components';
 import toast, { Toaster } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 // import StateTable_1 from './StateTable_1';
-import { AssignLeavePostApi } from '../Utils/Apis'
-import { RolePermissionGetApi } from '../Utils/Apis'
-import { TeacherGetAllApi } from '../Utils/Apis'
-import { LeaveGetAllApi } from '../Utils/Apis'
-import { AssignLeaveGetAllApi } from '../Utils/Apis'
-import { LeaveAssignDeleteApi } from '../Utils/Apis'
-import { AssignLeaveGetById } from '../Utils/Apis'
-import { LeaveAssignDeleteTypeApi } from '../Utils/Apis'
+import { AttendanceCheckInApi } from '../Utils/Apis'
+import { AttendanceCheckOutApi } from '../Utils/Apis'
+
+
+import { AttendanceTeacherGetAllApi } from '../Utils/Apis'
 import HashLoader from './HashLoaderCom';
 
 
@@ -365,7 +362,6 @@ color: #000 !important;
 .cancel-btn{
     color: #959494;
    border-color: #cdcdcd;
-  
     --bs-btn-hover-bg: #fff;
     border-radius: 0%;
   }
@@ -384,8 +380,10 @@ color: #000 !important;
 
 .progress-bar{
   width: 100% !important;
-  height: 5px !important;
+  height: 3px !important;
   border-radius: 10px !important;
+  background-color: #FF914C;
+
 }
 .My-own-form-check-input:checked {
     background-color: #B50000;
@@ -477,7 +475,7 @@ const AssignLeave = () => {
   const [LeaveNo, setLeaveNo] = useState()
   const [rolePermissionAllData, setRolePermissionAllData] = useState([])
   const [userAllData, setUserAllData] = useState([])
-  const [leaveTypeAllData, setLeaveTypeAllData] = useState([])
+  const [attendanceTeacherData, setAttendanceTeacherData] = useState([])
   const [AssignAllData, setAssignAllData] = useState([])
   const [assignAllDataGetById, setAssignAllDataGetById] = useState()
   console.log('my USER leave in assign leve by get  by id', assignAllDataGetById)
@@ -485,70 +483,35 @@ const AssignLeave = () => {
   const [IdForDeleteType, setIdForDeleteType] = useState()
   const [IdForUpdate, setIdForUpdate] = useState()
   const [searchKey, setSearchKey] = useState('')
+  const [apiData, setApiData] = useState('')
   // console.log('my orle ID',roleId)
+  const [isChecked, setIsChecked] = useState(false);
 
   // const [tabclick, setTabclick] = useState('tab3')
 
   useEffect(() => {
-    MyRolPermisGetAllApi()
+
     if (roleId) {
       MyUserGetAllApi()
     }
     MyLeaveGetAllApi()
-    MyAssignLeaveGetAllApi()
+    // MyAssignLeaveGetAllApi()
   }, [roleId])
 
-  // -------------- Apis from other pages ----------- 
-
-
-  // Role permission Get All Api   
-  const MyRolPermisGetAllApi = async () => {
-    setLoader(true)
-    try {
-      const response = await RolePermissionGetApi();
-      // console.log('My role permission get all DATAAA12', response)
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg)
-        setRolePermissionAllData(response?.data?.roles)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const MyUserGetAllApi = async () => {
-    console.log('mmy roleid', roleId)
-    setLoader(true)
-    try {
-      const response = await TeacherGetAllApi(roleId);
-      console.log('My USER get all DATAAA000', response)
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg)
-        setUserAllData(response?.data?.AllRoles)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
+  
   // Leave Get All Api   
-  const MyLeaveGetAllApi = async () => {
+  const MyLeaveGetAllApi = async (data) => {
+    console.log(data,'my week,month data')
     setLoader(true)
     try {
-      const response = await LeaveGetAllApi();
-      // console.log('Leave get All Api data',response);
+      const response = await AttendanceTeacherGetAllApi(data);
+      console.log('Attendance teacher get all data',response);
       if (response?.status === 200) {
-        toast.success(response?.data?.classes?.msg)
-        setLeaveTypeAllData(response?.data?.leave)
+        toast.success(response?.data?.message)
+        setAttendanceTeacherData(response?.data?.staffAttendance)
         setLoader(false)
       } else {
-        toast.error(response?.data?.classes?.msg);
+        toast.error(response?.data?.message);
       }
     } catch (error) {
       console.log(error)
@@ -556,119 +519,35 @@ const AssignLeave = () => {
   }
   // -------------- Apis from other pages end----------- 
 
+// post api of check-in and check-out 
 
-  // Leave Post Api 
-  const MyAssignLeavePostApi = async () => {
-
-    const formData = new FormData()
-    formData.append('leaveType', LeaveType);
-    formData.append('userId', userId);
-    formData.append('leaveNo', LeaveNo);
-    setLoader(true)
-    try {
-      const response = await AssignLeavePostApi(formData);
-      console.log('class-post-api', response)
-      if (response?.status === 200) {
-        if (response?.data?.status === "success") {
-          toast.success(response?.data?.msg);
-          MyAssignLeaveGetAllApi()
-          setShow(false)
-          setHide(true)
+  const handleChange = async (event) => {
+    const checked = event.target.checked;
+    setIsChecked(checked);
+    if (checked) {
+      try {
+        const response = await AttendanceCheckInApi();
+        console.log('Check-in response',response);
+        if (response?.status === 200) {
+          toast.success(response?.data?.message)
           setLoader(false)
-        } else {
-          toast.error(response?.data?.msg);
-          setShow(true)
-        }
-      } else {
-        toast.error(response?.data?.msg);
+        } 
+      } catch (error) {
+        console.log(error)
       }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-
-  // Assign Leave Get All Api
-  const MyAssignLeaveGetAllApi = async () => {
-    setLoader(true)
-    try {
-      const response = await AssignLeaveGetAllApi();
-      console.log('Assign leave get All Api data', response);
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg)
-        setAssignAllData(response?.data?.user)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
+    } else {
+      try {
+        const response = await AttendanceCheckOutApi();
+        console.log('Check-out response',response);
+        if (response?.status === 200) {
+          toast.success(response?.data?.message)
+          setLoader(false)
+        } 
+      } catch (error) {
+        console.log(error)
       }
-    } catch (error) {
-      console.log(error)
     }
-  }
-
-  // Delete api
-  const MyHolidayDeleteApi = async (id) => {
-    setLoader(true)
-    try {
-      const response = await LeaveAssignDeleteApi(id);
-      console.log('my-delete-api in assign leave', response)
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg);
-        MyAssignLeaveGetAllApi()
-        setShowdelete(false)
-        setHidedelete(true)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-        setShowdelete(true)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  // Delete leave type api
-  const MyHAssignLeaveTypeDeleteApi = async (id) => {
-    setLoader(true)
-    try {
-      const response = await LeaveAssignDeleteTypeApi(id, roleId);
-      console.log('my-delete-api in assign leave', response)
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg);
-        MyAssignLeaveGetAllApi()
-        setShowdelete12(false)
-        setHidedelete12(true)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-        setShowdelete12(true)
-      }
-    } catch (error) {
-      console.log('catch')
-    }
-  }
-
-
-  // Get by id 
-  const MyAssignLeaveGetByIdApi = async (id) => {
-    setIdForUpdate(id)
-    // console.log('syllbus get by id ',id)
-    setLoader(true)
-    try {
-      const response = await AssignLeaveGetById(id);
-      console.log('Assign leave  data get by id1234567890987654', response)
-
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg);
-        setAssignAllDataGetById(response?.data?.userLeave)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  };
 
 
   const handleForDelete = () => {
@@ -702,13 +581,13 @@ const AssignLeave = () => {
           <div className='d-flex g-1 for-media-query'>
 
             <div className='pe-2'  >
-              <button type="button" className="btn my-btn12 heading-12  mt-1" data-bs-dismiss="offcanvas" >Week View</button>
+              <button type="button" className="btn my-btn12 heading-12  mt-1" data-bs-dismiss="offcanvas" onClick={() => MyLeaveGetAllApi('week')} >Week View</button>
             </div>
-            <div className='pe-2'  >
-              <button type="button" className="btn my-btn12 heading-12  mt-1" data-bs-dismiss="offcanvas" >Month View</button>
+            <div className='pe-2'>
+              <button type="button" className="btn my-btn12 heading-12  mt-1" data-bs-dismiss="offcanvas" onClick={() => MyLeaveGetAllApi('month')}>Month View</button>
             </div>
             <div class="form-check form-switch pe-2">
-              <input style={{ width: '100px', height: '28px' }} class="form-check-input My-own-form-check-input " placeholder='hello' type="checkbox" role="switch" id="flexSwitchCheckChecked" />
+              <input style={{ width: '100px', height: '28px' }} class="form-check-input My-own-form-check-input "  checked={isChecked} onChange={handleChange} placeholder='hello' type="checkbox" role="switch" id="flexSwitchCheckChecked" />
             </div>
             <p className='p-1 pe-3'>05:02:55 Hrs</p>
 
@@ -724,6 +603,7 @@ const AssignLeave = () => {
             <table className="table table-sm table-striped">
               <thead className=''>
                 <tr className='heading-16 text-color-000 ' style={{ fontWeight: '500' }}>
+
                   <th className=' pe-0' style={{ width: '15%' }} >Date</th>
                   <th style={{ width: '8%' }}>Check In</th>
                   <th style={{ width: '40%' }}></th>
@@ -732,61 +612,24 @@ const AssignLeave = () => {
                 </tr>
               </thead>
               <tbody className='heading-14 align-middle greyTextColor greyText'>
-                {/* {
-                  AssignAllData.map((item, index) => (
+                {
+                  attendanceTeacherData?.map((item, index) => (
                     <tr className='heading-14' >
-                      <td className=' greyText pe-0'>{index + 1}</td>
-                      <td className=' greyText pe-0'>{item.userName}</td>
-                      <td className=' greyText pe-0'>{item.roleName}</td>
-                      <td className=' greyText pe-0'>
-                        <select class="form-select form-focus  label-color" onChange={(e) => setRoleId(e.target.value)} aria-label="Default select example">
-                          {
-                            item?.leaveInfo?.map(item => (
-                              <option value={item.leaveType}>{item.leaveType}</option>
-                            ))
-                          }
-                        </select>
-                      </td>
-                      <td className=' greyText pe-0'>
-                        {
-                          item?.leaveInfo?.map(item => (
-                            <div>
-                              {`${item.leaveType ? item?.leaveCount : ''}`}
-                            </div>
-                          ))
-                        }
-                      </td>
-                      <td className=' greyText  pe-0' >
-                        <div className="dropdown my-button-show">
-                          <button className="btn btn-secondary dropdown-togg my-button-drop tableActionButtonBgColor text-color-000 heading-14" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Action  &nbsp;
-                            <svg width="11" height="7" viewBox="0 0 11 7" fill="none" xmlns="">
-                              <path d="M10.3331 0L11 0.754688L5.5 7L0 0.754688L0.663438 0L5.5 5.48698L10.3331 0Z" fill="black" />
-                            </svg>
-                          </button>
-                          <ul className="dropdown-menu anchor-color heading-14">
-                            <li><Link className="dropdown-item" to={''} data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop202" aria-controls="staticBackdrop" onClick={(e) => MyAssignLeaveGetByIdApi(item.userId)} >Edit</Link></li>
-                            <li><Link className="dropdown-item" to={''} data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight22" aria-controls="offcanvasRight" onClick={(e) => setIdForDelete(item.userId)}>Delete All</Link></li>
-                            <li><Link className="dropdown-item" to={''} data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight2233" aria-controls="offcanvasRight" onClick={(e) => setIdForDeleteType(item.userId)}>Delete Type</Link></li>
-                          </ul>
+                    <td className=' greyText pe-0'>{item.date }</td>
+                    <td className=' greyText pe-0'>9:30 AM</td>
+                    <td className=' greyText ps-0'>
+                      <div className='pt-1'>
+                        <div class="progress progress-bar" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                          <div class="progress-bar  progress-bar-striped progress-bar-animated "></div>
                         </div>
-                      </td>
-                    </tr>
-                  ))} */}
-                <tr className='heading-14' >
-                  <td className=' greyText pe-0'>table</td>
-                  <td className=' greyText pe-0'>9:30 AM</td>
-                  <td className=' greyText ps-0'>
-                    <div className='pt-1'>
-                      <div class="progress progress-bar" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar  progress-bar-striped progress-bar-animated "></div>
                       </div>
-                    </div>
-                  </td>
-                  <td className=' greyText pe-0'>10:30 AM</td>
-                  <td className=' greyText pe-0'>table</td>
-
-                </tr>
+                    </td>
+                    <td className=' greyText pe-0'>10:30 AM</td>
+                    <td className=' greyText pe-0'>table</td>
+  
+                  </tr>
+                  ))}
+              
               </tbody>
               <Toaster />
             </table>
@@ -878,11 +721,11 @@ const AssignLeave = () => {
                       <label for="exampleFormControlInput1" className="form-label  heading-14">Leave Type</label>
                       <select class="form-select   form-focus  label-color" onChange={(e) => setLeaveType(e.target.value)} aria-label="Default select example">
                         <option value="">--Choose--</option>
-                        {
+                        {/* {
                           leaveTypeAllData.map(item => (
                             <option key={item.id} value={item.leaveType}>{item.leaveType}</option>
                           ))
-                        }
+                        } */}
                       </select>
                     </div>
 

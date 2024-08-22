@@ -32,10 +32,10 @@ const Add_assign_offcnvs = () => {
     const [classNo, setClassNo] = useState()
     const [sectionId, setSectionId] = useState()
     const [subjectId, setSubjectId] = useState()
-    console.log('classs idddd',classId)
-    console.log('classs no',classNo)
-    console.log('subject idddd',subjectId)
-    
+    console.log('classs idddd', classId)
+    console.log('classs no', classNo)
+    console.log('subject idddd', subjectId)
+
     const [teacher, setTeacher] = useState()
     const [totalMarks, setTotalMarks] = useState()
     const [startDay, setStartDay] = useState()
@@ -47,6 +47,10 @@ const Add_assign_offcnvs = () => {
     const [subjectData, setSubjectData] = useState([])
     const [teacherData, setTeachertData] = useState([])
 
+    const [isValidTitleRequired, setIsValidTitleRequired] = useState(false);
+    const [isValidMarksRequired, setIsValidMarksRequired] = useState(false);
+    const [isValidStartDateRequired, setIsValidStartDateRequired] = useState(false);
+    const [isValidEndDayDateRequired, setIsValidEndDayDateRequired] = useState(false);
 
     useEffect(() => {
         UpdatClassGetApi()
@@ -54,11 +58,91 @@ const Add_assign_offcnvs = () => {
 
     useEffect(() => {
 
-     if(subjectId){
+        if (subjectId) {
             MyTeacherByClassIdGetApi(subjectId)
         }
     }, [subjectId])
- 
+
+    // ###### validation ##########
+    const [errors, setErrors] = useState({});
+
+
+    const FuncValidation = () => {
+        // title
+        if (title === "" || !title) {
+            setIsValidTitleRequired(true)
+        }
+        else {
+        }
+        // marks 
+        if (totalMarks === "" || !totalMarks) {
+            setIsValidMarksRequired(true)
+        }
+        else {
+        }
+        // start date 
+        if (startDay === "" || !startDay) {
+            setIsValidStartDateRequired(true)
+        }
+        else {
+        }
+        // end date 
+        if (endDay === "" || !endDay) {
+            setIsValidEndDayDateRequired(true)
+        }
+        else {
+        }
+        return errors;
+    }
+
+    // title
+    const handleTitle = (e2) => {
+        setTitle(e2);
+        const nameRegex = /^[A-Za-z]+$/;
+        setIsValidTitleRequired(nameRegex.test(e2));
+        if (e2 === "") {
+            setIsValidTitleRequired(true)
+        } else {
+            setIsValidTitleRequired(false)
+        }
+    }
+    // marks 
+    const handleMarks = (e2) => {
+        setTotalMarks(e2)
+        const noRegex = /^[0-9]+$/;
+        setIsValidMarksRequired(noRegex.test(e2));
+
+        if (e2 === "") {
+            setIsValidMarksRequired(true)
+        } else {
+            setIsValidMarksRequired(false)
+        }
+    }
+    // start date 
+    const handleStartDate = (e2) => {
+        setStartDay(e2)
+        const dateRegex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+        setIsValidStartDateRequired(dateRegex.test(e2));
+        if (e2 === "") {
+            setIsValidStartDateRequired(true)
+        } else {
+            setIsValidStartDateRequired(false)
+        }
+    }
+    // end date 
+    const handleEndDate = (e2) => {
+        setEndDay(e2)
+        const dateRegex = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+        setIsValidEndDayDateRequired(dateRegex.test(e2));
+        if (e2 === "") {
+            setIsValidEndDayDateRequired(true)
+        } else {
+            setIsValidEndDayDateRequired(false)
+        }
+    }
+    // ###### validation ##########
+
+
     const handle = (event) => {
         const value = event.target.value;
         const [val1, val2] = value.split(',');
@@ -68,7 +152,7 @@ const Add_assign_offcnvs = () => {
         // console.log(val1, 'classsssssssssss')
         MySectionGetApi(val1)
         MySubjectByClassIdGetApi(val1)
-      }
+    }
     // Get All Api from class list page for id 
     const UpdatClassGetApi = async () => {
         setLoader(true)
@@ -126,7 +210,7 @@ const Add_assign_offcnvs = () => {
     const MyTeacherByClassIdGetApi = async () => {
         setLoader(true)
         try {
-            const response = await GetTeacherGetAll(classId,subjectId);
+            const response = await GetTeacherGetAll(classId, subjectId);
             console.log('Teacher-get-all-api in Assignment', response);
             if (response?.status === 200) {
                 toast.success(response?.data?.classes?.message)
@@ -140,40 +224,41 @@ const Add_assign_offcnvs = () => {
         }
     }
 
-      // post Api 
-  const AssignmntDataApi = async () => {
-    setLoader(true)
-    {
-        const formData = new FormData()
-        formData.append('title', title);
-        formData.append('ClassId', classId);
-        formData.append('subjectId', subjectId);
-        formData.append('teacherId', teacher);
-        formData.append('totalMarks', totalMarks);
-        formData.append('startDate', startDay);
-        formData.append('endDate', endDay);
-        formData.append('status', status);
-        formData.append('sectionId', sectionId);
-        formData.append('file', assignmentUpload);
-  
-        try {
-          const response = await AssignmentPostApi(formData);
-          // console.log('my book manager list post api response', response)
-          if (response?.data?.status === "success") {
-            toast.success(response?.data?.msg);
-            MyBookIssueGetApi()
-            setAdd(false)
-           
-            setLoader(false)
-          } else {
-            toast.error(response?.data?.msg);
-            setAdd(true)
-          }
-        } catch (error) {
-          console.log(error)
+    // post Api 
+    const AssignmntDataApi = async () => {
+        if (FuncValidation()) {
+            setLoader(true)
+            {
+                const formData = new FormData()
+                formData.append('title', title);
+                formData.append('ClassId', classId);
+                formData.append('subjectId', subjectId);
+                formData.append('teacherId', teacher);
+                formData.append('totalMarks', totalMarks);
+                formData.append('startDate', startDay);
+                formData.append('endDate', endDay);
+                formData.append('status', status);
+                formData.append('sectionId', sectionId);
+                formData.append('file', assignmentUpload);
+                try {
+                    const response = await AssignmentPostApi(formData);
+                    console.log('response of assignmnt data post api', response)
+                    if (response?.data?.status === "success") {
+                        toast.success(response?.data?.msg);
+                        // MyBookIssueGetApi()
+                        setAdd(false)
+                        setLoader(false)
+                    } else {
+                        toast.error(response?.data?.msg);
+                        setAdd(true)
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+            }
         }
+      
     }
-  }
     return (
         <div className="container-fluid">
             <div className="row">
@@ -184,7 +269,14 @@ const Add_assign_offcnvs = () => {
                         <div className="offcanvas-body pt-0  px-0">
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Title</label>
-                                <input type="email" class="form-control form-control-sm" onChange={(e) => setTitle(e.target.value)} id="exampleFormControlInput1" placeholder="Select Title" />
+                                <input type="email" class="form-control form-control-sm" onChange={(e) => handleTitle(e.target.value)} id="exampleFormControlInput1" placeholder="Select Title" />
+                            </div>
+                            <div className='pt-1'>
+                                {isValidTitleRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Valid title is required
+                                    </p>
+                                )}
                             </div>
 
                             <div className="mb-1  ">
@@ -192,10 +284,10 @@ const Add_assign_offcnvs = () => {
                                 <select class="form-select  form-select-sm form-focus  label-color" onChange={handle} aria-label="Default select example">
                                     <option selected>--Choose--</option>
                                     {
-                          classData.map(item => (
-                            <option value={`${item.classId}, ${item.classNo}`}>{item.classNo}</option>
-                          ))
-                        }
+                                        classData.map(item => (
+                                            <option value={`${item.classId}, ${item.classNo}`}>{item.classNo}</option>
+                                        ))
+                                    }
                                 </select>
                             </div>
                             <div className="mb-1  ">
@@ -207,7 +299,7 @@ const Add_assign_offcnvs = () => {
                                             <option value={item.sectionId}>{item.sectionName}</option>
                                         )
                                     }
-                                   
+
                                 </select>
                             </div>
                             <div className="mb-1  ">
@@ -219,7 +311,7 @@ const Add_assign_offcnvs = () => {
                                             <option value={item.subjectId}>{item.subjectName}</option>
                                         )
                                     }
-                                    
+
                                 </select>
                             </div>
                             <div className="mb-1  ">
@@ -227,35 +319,57 @@ const Add_assign_offcnvs = () => {
                                 <select class="form-select  form-select-sm form-focus  label-color" onChange={(e) => setTeacher(e.target.value)} aria-label="Default select example">
                                     <option selected>--Choose--</option>
                                     {
-                                         teacherData.map(item =>
+                                        teacherData.map(item =>
                                             <option value={item.subjectId}>{item.staffName}</option>
                                         )
                                     }
-                                   
+
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Total Marks</label>
-                                <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => setTotalMarks(e.target.value)} placeholder="Select Title" />
+                                <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => handleMarks(e.target.value)} placeholder="Select Title" />
+                            </div>
+                            <div className='pt-1'>
+                                {isValidMarksRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Valid marks is required
+                                    </p>
+                                )}
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Start Day</label>
-                                <input type="date" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => setStartDay(e.target.value)} placeholder="Select Class" />
+                                <input type="date" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => handleStartDate(e.target.value)} placeholder="Select Class" />
+                            </div>
+                            <div className='pt-1'>
+                                {isValidStartDateRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Valid start date is required
+                                    </p>
+                                )}
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">End Day</label>
-                                <input type="date" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => setEndDay(e.target.value)} placeholder="Select Class" />
+                                <input type="date" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => handleEndDate(e.target.value)} placeholder="Select Class" />
+                            </div>
+                            <div className='pt-1'>
+                                {isValidEndDayDateRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Valid end date is required
+                                    </p>
+                                )}
                             </div>
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Assignment Upload </label>
-                                <input type="file" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => setAssignmentUpload(e.target.value)} placeholder="Select Class" />
+                                <input type="file" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => setAssignmentUpload(e.target.files[0])} placeholder="Select Class" accept='.jpg, .png, .jpeg' />
                             </div>
                             <div className="mb-1  ">
                                 <label for="exampleFormControlInput1" className="form-label  heading-16">Status</label>
                                 <select class="form-select  form-select-sm form-focus  label-color" onChange={(e) => setStatus(e.target.value)} aria-label="Default select example">
                                     <option selected>--Choose--</option>
                                     <option value="active">Active</option>
-                                    <option value="inactive">InActive</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="archives">Archives</option>
 
                                 </select>
                             </div>

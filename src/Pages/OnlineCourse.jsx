@@ -917,7 +917,7 @@ const OnlineCourse = () => {
                       <option selected>--Choose--</option>
 
                         {
-                          teacherAllData.map(item => (
+                          teacherAllData?.map(item => (
                             <option value={`${item.id ? item.id : ''}`} >{`${item.staffName ? item.staffName : ''}`}</option>
                           ))
                         }
@@ -1046,11 +1046,11 @@ const OnlineCourse = () => {
                     <div className="mb-1">
                       <label for="exampleFormControlInput1" className="form-label label-color heading-16">Teacher</label>
                       <select class="form-select form-focus label-color heading-14 " onChange={(e) => setTeacherId(e.target.value)} aria-label="Default select example">
-                        {
+                        {/* {
                           teacherAllData.map(item => (
                             <option value={item.id}>{item.staffName}</option>
                           ))
-                        }
+                        } */}
                       </select>
                     </div>
                     <div className="mb-3  pt-2 for-media-margin">

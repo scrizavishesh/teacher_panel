@@ -478,7 +478,7 @@ const Sample_paper = () => {
 
     const [loader, setLoader] = useState(false)
     const [forDelete, setForDelete] = useState(false)
-    const [title, setTitle] = useState()
+
 
     const [hide, setHide] = useState(false)
     const [show, setShow] = useState(true)
@@ -493,12 +493,14 @@ const Sample_paper = () => {
     const [subjectId, setSubjectId] = useState()
     const [teacherId, setTeacherId] = useState()
     const [status, setStatus] = useState()
-    const [setClassdata, setSetClassdata] = useState([])
+    const [classdata, setClassdata] = useState([])
     const [sectionData, setSectionData] = useState([])
     const [subjectData, setSubjectData] = useState([])
     const [teacherData, setTeachertData] = useState([])
     const [sampleData, setSampleDataAll] = useState([])
-console.log('sample  get all data ',sampleData)
+    console.log('sample  get all data ', sampleData)
+    const [title, setTitle] = useState()
+    const [isValidTitleRequired, setIsValidTitleRequired] = useState(false);
 
     useEffect(() => {
         UpdatClassGetApi()
@@ -512,6 +514,36 @@ console.log('sample  get all data ',sampleData)
         }
     }, [classId, subjectData])
 
+
+    // ###### validation ##########
+    const [errors, setErrors] = useState({});
+
+
+    const FuncValidation = () => {
+        // title
+        if (title === "" || !title) {
+            setIsValidTitleRequired(true)
+        }
+        else {
+        }
+        return errors;
+    }
+
+    // title
+    const handleTitle = (e2) => {
+        setTitle(e2);
+        const nameRegex = /^[A-Za-z]+$/;
+        setIsValidTitleRequired(nameRegex.test(e2));
+
+        if (e2 === "") {
+            setIsValidTitleRequired(true)
+        } else {
+            setIsValidTitleRequired(false)
+        }
+    }
+    // ###### validation ##########
+
+
     // Get All Api from class list page for id 
     const UpdatClassGetApi = async () => {
         setLoader(true)
@@ -520,7 +552,7 @@ console.log('sample  get all data ',sampleData)
             console.log('class-get-all-api in Marks', response);
             if (response?.status === 200) {
                 toast.success(response?.data?.classes?.message)
-                setSetClassdata(response?.data?.classes)
+                setClassdata(response?.data?.classes)
                 setLoader(false)
             } else {
                 toast.error(response?.data?.classes?.message);
@@ -584,37 +616,40 @@ console.log('sample  get all data ',sampleData)
 
     // post Api 
     const SampleDataApi = async () => {
-        setLoader(true)
-        {
-            const formData = new FormData()
-            formData.append('title', title);
-            formData.append('ClassId', classId);
-            formData.append('sectionId', sectionId);
-            formData.append('subjectId', subjectId);
-            formData.append('teacherId', teacherId);
-            formData.append('status', status);
-            try {
-                const response = await SamplePaperPostApi(formData);
-                // console.log('my book manager list post api response', response)
-                if (response?.data?.status === "success") {
-                    toast.success(response?.data?.msg);
-                    // MyBookIssueGetApi()
-                    setShow(false)
-                    setHide(true)
-
-                    setLoader(false)
-                } else {
-                    toast.error(response?.data?.msg);
-                    setShow(true)
+        if(FuncValidation()){
+            setLoader(true)
+            {
+                const formData = new FormData()
+                formData.append('title', title);
+                formData.append('ClassId', classId);
+                formData.append('sectionId', sectionId);
+                formData.append('subjectId', subjectId);
+                formData.append('teacherId', teacherId);
+                formData.append('status', status);
+                try {
+                    const response = await SamplePaperPostApi(formData);
+                    // console.log('my book manager list post api response', response)
+                    if (response?.data?.status === "success") {
+                        toast.success(response?.data?.msg);
+                        // MyBookIssueGetApi()
+                        setShow(false)
+                        setHide(true)
+    
+                        setLoader(false)
+                    } else {
+                        toast.error(response?.data?.msg);
+                        setShow(true)
+                    }
+                } catch (error) {
+                    console.log(error)
                 }
-            } catch (error) {
-                console.log(error)
             }
         }
+       
     }
 
-     // Get All Api from class list page for id 
-     const MySampleGetApi = async () => {
+    // Get All Api from class list page for id 
+    const MySampleGetApi = async () => {
         setLoader(true)
         try {
             const response = await SampleGetAllApi(searchKey);
@@ -630,8 +665,8 @@ console.log('sample  get all data ',sampleData)
             console.log(error)
         }
     }
-     // Get By Id
-     const MySampleGetByIdApi = async (id) => {
+    // Get By Id
+    const MySampleGetByIdApi = async (id) => {
         setIdForUpdate(id)
         setLoader(true)
         try {
@@ -658,36 +693,36 @@ console.log('sample  get all data ',sampleData)
     }
 
 
-     //  Put api sample
-  const MySamplePutApi = async () => {
-    setLoader(true)
-    try {
-      const formData = new FormData()
-      formData.append('title', title);
-      formData.append('ClassId', classId);
-      formData.append('sectionId', sectionId);
-      formData.append('subjectId', subjectId);
-      formData.append('teacherId', teacherId);
-      formData.append('status', status);
+    //  Put api sample
+    const MySamplePutApi = async () => {
+        setLoader(true)
+        try {
+            const formData = new FormData()
+            formData.append('title', title);
+            formData.append('ClassId', classId);
+            formData.append('sectionId', sectionId);
+            formData.append('subjectId', subjectId);
+            formData.append('teacherId', teacherId);
+            formData.append('status', status);
 
-      const response = await SamplePutApi(idForUpdate, formData);
-      console.log('My-Sample-put-Api-response', response)
+            const response = await SamplePutApi(idForUpdate, formData);
+            console.log('My-Sample-put-Api-response', response)
 
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg);
-        setShowadd(false)
-        setHideedit(true)
-        MySampleGetApi()
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-        setShowadd(true)
-      }
+            if (response?.status === 200) {
+                toast.success(response?.data?.msg);
+                setShowadd(false)
+                setHideedit(true)
+                MySampleGetApi()
+                setLoader(false)
+            } else {
+                toast.error(response?.data?.msg);
+                setShowadd(true)
+            }
 
-    } catch (error) {
-      console.log(error)
+        } catch (error) {
+            console.log(error)
+        }
     }
-  }
     return (
         <Container>
             {
@@ -725,13 +760,13 @@ console.log('sample  get all data ',sampleData)
                         <div className="col-lg-4 col-md-6 col-sm-12 ">
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label mb-1 label-text-color focus heading-14">Class</label>
-                                <select class="form-select  form-select-sm form-focus label-color" onChange={(e) => setExamCategory(e.target.value)} aria-label="Default select example">
+                                <select class="form-select  form-select-sm form-focus label-color" onChange={(e) => setClassId(e.target.value)} aria-label="Default select example">
                                     <option value="" >All Class</option>
-                                    {/* {
-                                        setClassdata.map(item =>
+                                    {
+                                        classdata.map(item =>
                                             <option value={item.classId}>{item.classNo}</option>
                                         )
-                                    } */}
+                                    }
 
                                 </select>
                             </div>
@@ -739,26 +774,26 @@ console.log('sample  get all data ',sampleData)
                         <div className="col-lg-4 col-md-6 col-sm-12 ">
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label mb-1 label-text-color focus heading-14">Section</label>
-                                <select class="form-select  form-select-sm form-focus label-color" onChange={(e) => setClassId(e.target.value)} aria-label="Default select example">
+                                <select class="form-select  form-select-sm form-focus label-color" onChange={(e) => setSectionId(e.target.value)} aria-label="Default select example">
                                     <option value="" >All Class</option>
-                                    {/* {
+                                    {
                                         sectionData.map(item =>
                                             <option value={item.sectionId}>{item.sectionName}</option>
                                         )
-                                    } */}
+                                    }
                                 </select>
                             </div>
                         </div>
                         <div className="col-lg-4 col-md-6 col-sm-12">
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label mb-1 label-text-color heading-14">Subject</label>
-                                <select class="form-select  form-select-sm form-focus   label-color" onChange={(e) => setSectionId(e.target.value)} aria-label="Default select example">
+                                <select class="form-select  form-select-sm form-focus   label-color" onChange={(e) => setSubjectId(e.target.value)} aria-label="Default select example">
                                     <option value="">--Choose--</option>
-                                    {/* {
+                                    {
                                         sectionData.map(item =>
-                                            <option value={item.sectionId}>{item.sectionName}</option>
+                                            <option value={item.subjectId}>{item.subjectName}</option>
                                         )
-                                    } */}
+                                    }
                                 </select>
                             </div>
                         </div>
@@ -787,55 +822,55 @@ console.log('sample  get all data ',sampleData)
                                 </tr>
                             </thead>
                             <tbody className='heading-14 align-middle greyTextColor'>
-                              
+
                                 {
                                     sampleData.map((item, index) => (
                                         <tr className='heading-14' >
-                                        <td className=' greyText'>{index + 1}</td>
-                                        <td className=' greyText' >{item.title}</td>
-                                        <td className=' greyText' >{item.classNo}</td>
-                                        <td className=' greyText' >{item.sectionName}</td>
-                                        <td className=' greyText' >{item.subjectName}</td>
-                                        <td className=' greyText d-flex ' >
-                                            <p>
-                                                <svg className='mt-4' width="18" height="20" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M16.5221 0.119141L19.9829 3.59088L19.9695 3.60365L16.5515 3.60623L16.5195 0.121719L16.5221 0.119141Z" fill="#F1F1F1" />
-                                                    <path d="M7.23135 5.59891C7.23135 6.25762 6.86338 6.56875 6.29859 6.5643C6.22131 6.5643 6.135 6.5643 6.08203 6.55217V4.74854C6.135 4.73641 6.22512 4.72363 6.36439 4.72363C6.89977 4.72369 7.23521 5.0265 7.23135 5.59891Z" fill="#F1F1F1" />
-                                                    <path d="M4.44158 5.12072C4.44158 5.40309 4.23709 5.57113 3.90621 5.57113C3.81609 5.57113 3.75029 5.56668 3.69727 5.55455V4.74057C3.74262 4.72844 3.82822 4.71631 3.95473 4.71631C4.26586 4.71631 4.44158 4.86707 4.44158 5.12072Z" fill="#F1F1F1" />
-                                                    <path d="M2.36254 2.54395H13.0959V8.74117H2.36254H2.33635H0.0625V2.54395H2.33629H2.36254Z" fill="#F1F1F1" />
-                                                    <path d="M11.4759 11.9407C11.4835 12.584 11.0721 13.8394 11.0721 13.8394C10.9301 13.6899 10.6465 12.89 10.6465 12.1502C10.6465 11.4104 10.8855 11.2085 11.0721 11.2085C11.2592 11.2085 11.4681 11.298 11.4759 11.9407Z" fill="#DC1D00" />
-                                                    <path d="M15.9554 17.5515C15.9554 18.4012 14.4156 18.0548 13.4688 17.1534C13.4688 17.1534 15.9554 16.7023 15.9554 17.5515Z" fill="#DC1D00" />
-                                                    <path d="M7.02048 20.3501C6.25829 19.8939 8.62026 18.489 9.04641 18.4443C9.04641 18.4443 7.81846 20.8273 7.02048 20.3501Z" fill="#DC1D00" />
-                                                    <path d="M11.4308 15.2373C11.864 16.0443 12.7239 16.9937 12.7239 16.9937C12.7239 16.9937 12.3948 17.0307 11.6302 17.2179C10.8654 17.405 10.4814 17.5993 10.4814 17.5993C10.4814 17.5993 10.4814 17.5993 10.7952 16.8966C11.1095 16.1937 11.4308 15.2373 11.4308 15.2373Z" fill="#DC1D00" />
-                                                    <path d="M19.9957 3.60389V23.8829H2.3623V8.74121H13.0956V2.54398H2.3623V0.116211H16.5195L16.522 0.119375L16.5195 0.121894L16.5514 3.60641L19.9695 3.60383L19.9829 3.59105L19.9957 3.60389Z" fill="#DC1D00" />
-                                                    <path d="M9.04664 18.4441C8.62055 18.4888 6.25852 19.8938 7.0207 20.3499C7.81869 20.8272 9.04664 18.4441 9.04664 18.4441ZM13.469 17.1536C14.4158 18.055 15.9556 18.4014 15.9556 17.5516C15.9556 16.7025 13.469 17.1536 13.469 17.1536ZM12.724 16.9938C12.724 16.9938 11.8641 16.0445 11.4309 15.2375C11.4309 15.2375 11.1096 16.1939 10.7953 16.8967C10.4815 17.5995 10.4815 17.5995 10.4815 17.5995C10.4815 17.5995 10.8655 17.4052 11.6303 17.218C12.395 17.0309 12.724 16.9938 12.724 16.9938ZM11.0719 13.8396C11.0719 13.8396 11.4833 12.5842 11.4758 11.9409C11.468 11.2982 11.2591 11.2087 11.0719 11.2087C10.8854 11.2087 10.6464 11.4105 10.6464 12.1504C10.6464 12.8902 10.93 13.6902 11.0719 13.8396ZM11.5881 14.8114C12.0067 15.716 13.1579 16.8814 13.1579 16.8814C13.1579 16.8814 13.5311 16.7843 15.0708 16.7473C16.6111 16.7102 16.6782 17.5765 16.6852 17.6513C16.6929 17.7267 16.753 18.4141 15.5269 18.4588C14.3016 18.5036 13.0302 17.2257 13.0302 17.2257C13.0302 17.2257 12.5075 17.3081 12.0744 17.4124C11.6412 17.5171 10.2503 17.8985 10.2503 17.8985C10.2503 17.8985 9.83889 18.646 8.92717 19.8414C8.01486 21.0374 6.99328 20.948 6.7019 20.5518C6.36328 20.0918 6.62461 19.6325 7.26733 19.0344C7.91004 18.4365 9.39293 17.9406 9.39293 17.9406C9.39293 17.9406 9.69193 17.4027 10.1302 16.376C10.5684 15.3493 10.9001 14.3181 10.9001 14.3181C10.9001 14.3181 10.4663 13.333 10.3819 12.4948C10.2874 11.5601 10.3921 10.9321 11.1096 10.9244C11.8272 10.9167 12.0513 11.4553 12.0737 12.3893C12.096 13.3241 11.5881 14.8114 11.5881 14.8114Z" fill="white" />
-                                                    <path d="M9.94141 4.79248V4.26514H8.30078V7.01904H8.88672V5.90576H9.88281V5.43701H8.88672V4.79248H9.94141Z" fill="#A51600" />
-                                                    <path d="M7.42738 4.53967C7.1616 4.33904 6.80934 4.24512 6.28545 4.24512C5.97051 4.24512 5.66406 4.26557 5.42969 4.3026V7.01022C5.60547 7.03066 5.82736 7.05105 6.15062 7.05105C6.69051 7.05105 7.13916 6.93668 7.4292 6.69521C7.69498 6.47033 7.89057 6.10611 7.89057 5.57842C7.89057 5.09232 7.71426 4.75242 7.42738 4.53967ZM6.26535 6.56432C6.18807 6.56432 6.13281 6.56432 6.01562 6.55219V4.74855C6.13281 4.73643 6.19188 4.72365 6.33121 4.72365C6.86658 4.72365 7.20197 5.02646 7.19811 5.59893C7.19811 6.25764 6.83008 6.56877 6.26535 6.56432Z" fill="#A51600" />
-                                                    <path d="M4.76453 4.46613C4.58055 4.31853 4.28061 4.24512 3.89594 4.24512C3.51578 4.24512 3.20313 4.27002 3.02734 4.3026V7.01883H3.67188V6.0365C3.73047 6.04482 3.81537 6.04928 3.89723 6.04928C4.2652 6.04928 4.58641 5.95916 4.79922 5.75859C4.96275 5.60338 5.05592 5.37398 5.05592 5.10439C5.05592 4.83416 4.9402 4.60541 4.76453 4.46613ZM3.8933 5.5708C3.80324 5.5708 3.73047 5.56635 3.67188 5.55422V4.74023C3.73047 4.72811 3.81537 4.71598 3.94182 4.71598C4.25301 4.71598 4.42867 4.86674 4.42867 5.12039C4.42867 5.40275 4.22424 5.5708 3.8933 5.5708Z" fill="#A51600" />
-                                                </svg>
-                                            </p>
-                                            <p className='ps-2 pt-4'>
-                                                <a href="">Dowload</a>
-                                            </p>
-                                        </td>
-                                        <td className='greyText'>
-                                            <div className="dropdown my-button-show">
-                                                <button className="btn btn-secondary dropdown-togg my-button-drop tableActionButtonBgColor text-color-000 heading-14" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Action  &nbsp;
-                                                    <svg width="11" height="7" viewBox="0 0 11 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M10.3331 0L11 0.754688L5.5 7L0 0.754688L0.663438 0L5.5 5.48698L10.3331 0Z" fill="black" />
+                                            <td className=' greyText'>{index + 1}</td>
+                                            <td className=' greyText' >{item.title}</td>
+                                            <td className=' greyText' >{item.classNo}</td>
+                                            <td className=' greyText' >{item.sectionName}</td>
+                                            <td className=' greyText' >{item.subjectName}</td>
+                                            <td className=' greyText d-flex ' >
+                                                <p>
+                                                    <svg className='mt-4' width="18" height="20" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M16.5221 0.119141L19.9829 3.59088L19.9695 3.60365L16.5515 3.60623L16.5195 0.121719L16.5221 0.119141Z" fill="#F1F1F1" />
+                                                        <path d="M7.23135 5.59891C7.23135 6.25762 6.86338 6.56875 6.29859 6.5643C6.22131 6.5643 6.135 6.5643 6.08203 6.55217V4.74854C6.135 4.73641 6.22512 4.72363 6.36439 4.72363C6.89977 4.72369 7.23521 5.0265 7.23135 5.59891Z" fill="#F1F1F1" />
+                                                        <path d="M4.44158 5.12072C4.44158 5.40309 4.23709 5.57113 3.90621 5.57113C3.81609 5.57113 3.75029 5.56668 3.69727 5.55455V4.74057C3.74262 4.72844 3.82822 4.71631 3.95473 4.71631C4.26586 4.71631 4.44158 4.86707 4.44158 5.12072Z" fill="#F1F1F1" />
+                                                        <path d="M2.36254 2.54395H13.0959V8.74117H2.36254H2.33635H0.0625V2.54395H2.33629H2.36254Z" fill="#F1F1F1" />
+                                                        <path d="M11.4759 11.9407C11.4835 12.584 11.0721 13.8394 11.0721 13.8394C10.9301 13.6899 10.6465 12.89 10.6465 12.1502C10.6465 11.4104 10.8855 11.2085 11.0721 11.2085C11.2592 11.2085 11.4681 11.298 11.4759 11.9407Z" fill="#DC1D00" />
+                                                        <path d="M15.9554 17.5515C15.9554 18.4012 14.4156 18.0548 13.4688 17.1534C13.4688 17.1534 15.9554 16.7023 15.9554 17.5515Z" fill="#DC1D00" />
+                                                        <path d="M7.02048 20.3501C6.25829 19.8939 8.62026 18.489 9.04641 18.4443C9.04641 18.4443 7.81846 20.8273 7.02048 20.3501Z" fill="#DC1D00" />
+                                                        <path d="M11.4308 15.2373C11.864 16.0443 12.7239 16.9937 12.7239 16.9937C12.7239 16.9937 12.3948 17.0307 11.6302 17.2179C10.8654 17.405 10.4814 17.5993 10.4814 17.5993C10.4814 17.5993 10.4814 17.5993 10.7952 16.8966C11.1095 16.1937 11.4308 15.2373 11.4308 15.2373Z" fill="#DC1D00" />
+                                                        <path d="M19.9957 3.60389V23.8829H2.3623V8.74121H13.0956V2.54398H2.3623V0.116211H16.5195L16.522 0.119375L16.5195 0.121894L16.5514 3.60641L19.9695 3.60383L19.9829 3.59105L19.9957 3.60389Z" fill="#DC1D00" />
+                                                        <path d="M9.04664 18.4441C8.62055 18.4888 6.25852 19.8938 7.0207 20.3499C7.81869 20.8272 9.04664 18.4441 9.04664 18.4441ZM13.469 17.1536C14.4158 18.055 15.9556 18.4014 15.9556 17.5516C15.9556 16.7025 13.469 17.1536 13.469 17.1536ZM12.724 16.9938C12.724 16.9938 11.8641 16.0445 11.4309 15.2375C11.4309 15.2375 11.1096 16.1939 10.7953 16.8967C10.4815 17.5995 10.4815 17.5995 10.4815 17.5995C10.4815 17.5995 10.8655 17.4052 11.6303 17.218C12.395 17.0309 12.724 16.9938 12.724 16.9938ZM11.0719 13.8396C11.0719 13.8396 11.4833 12.5842 11.4758 11.9409C11.468 11.2982 11.2591 11.2087 11.0719 11.2087C10.8854 11.2087 10.6464 11.4105 10.6464 12.1504C10.6464 12.8902 10.93 13.6902 11.0719 13.8396ZM11.5881 14.8114C12.0067 15.716 13.1579 16.8814 13.1579 16.8814C13.1579 16.8814 13.5311 16.7843 15.0708 16.7473C16.6111 16.7102 16.6782 17.5765 16.6852 17.6513C16.6929 17.7267 16.753 18.4141 15.5269 18.4588C14.3016 18.5036 13.0302 17.2257 13.0302 17.2257C13.0302 17.2257 12.5075 17.3081 12.0744 17.4124C11.6412 17.5171 10.2503 17.8985 10.2503 17.8985C10.2503 17.8985 9.83889 18.646 8.92717 19.8414C8.01486 21.0374 6.99328 20.948 6.7019 20.5518C6.36328 20.0918 6.62461 19.6325 7.26733 19.0344C7.91004 18.4365 9.39293 17.9406 9.39293 17.9406C9.39293 17.9406 9.69193 17.4027 10.1302 16.376C10.5684 15.3493 10.9001 14.3181 10.9001 14.3181C10.9001 14.3181 10.4663 13.333 10.3819 12.4948C10.2874 11.5601 10.3921 10.9321 11.1096 10.9244C11.8272 10.9167 12.0513 11.4553 12.0737 12.3893C12.096 13.3241 11.5881 14.8114 11.5881 14.8114Z" fill="white" />
+                                                        <path d="M9.94141 4.79248V4.26514H8.30078V7.01904H8.88672V5.90576H9.88281V5.43701H8.88672V4.79248H9.94141Z" fill="#A51600" />
+                                                        <path d="M7.42738 4.53967C7.1616 4.33904 6.80934 4.24512 6.28545 4.24512C5.97051 4.24512 5.66406 4.26557 5.42969 4.3026V7.01022C5.60547 7.03066 5.82736 7.05105 6.15062 7.05105C6.69051 7.05105 7.13916 6.93668 7.4292 6.69521C7.69498 6.47033 7.89057 6.10611 7.89057 5.57842C7.89057 5.09232 7.71426 4.75242 7.42738 4.53967ZM6.26535 6.56432C6.18807 6.56432 6.13281 6.56432 6.01562 6.55219V4.74855C6.13281 4.73643 6.19188 4.72365 6.33121 4.72365C6.86658 4.72365 7.20197 5.02646 7.19811 5.59893C7.19811 6.25764 6.83008 6.56877 6.26535 6.56432Z" fill="#A51600" />
+                                                        <path d="M4.76453 4.46613C4.58055 4.31853 4.28061 4.24512 3.89594 4.24512C3.51578 4.24512 3.20313 4.27002 3.02734 4.3026V7.01883H3.67188V6.0365C3.73047 6.04482 3.81537 6.04928 3.89723 6.04928C4.2652 6.04928 4.58641 5.95916 4.79922 5.75859C4.96275 5.60338 5.05592 5.37398 5.05592 5.10439C5.05592 4.83416 4.9402 4.60541 4.76453 4.46613ZM3.8933 5.5708C3.80324 5.5708 3.73047 5.56635 3.67188 5.55422V4.74023C3.73047 4.72811 3.81537 4.71598 3.94182 4.71598C4.25301 4.71598 4.42867 4.86674 4.42867 5.12039C4.42867 5.40275 4.22424 5.5708 3.8933 5.5708Z" fill="#A51600" />
                                                     </svg>
-    
-                                                </button>
-                                                <ul className="dropdown-menu anchor-color heading-14">
-                                                    <li><Link className="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight1234" aria-controls="staticBackdrop" onClick={(e) => MySampleGetByIdApi(item.sampleId)} >Edit</Link></li>
-                                                    <li><a className="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight22" aria-controls="staticBackdrop" onClick={(e) => setIdForDelete(item.courseId)}>Delete</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-    
-    
-                                    </tr>
+                                                </p>
+                                                <p className='ps-2 pt-4'>
+                                                    <a href="">Dowload</a>
+                                                </p>
+                                            </td>
+                                            <td className='greyText'>
+                                                <div className="dropdown my-button-show">
+                                                    <button className="btn btn-secondary dropdown-togg my-button-drop tableActionButtonBgColor text-color-000 heading-14" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Action  &nbsp;
+                                                        <svg width="11" height="7" viewBox="0 0 11 7" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M10.3331 0L11 0.754688L5.5 7L0 0.754688L0.663438 0L5.5 5.48698L10.3331 0Z" fill="black" />
+                                                        </svg>
+
+                                                    </button>
+                                                    <ul className="dropdown-menu anchor-color heading-14">
+                                                        <li><Link className="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight1234" aria-controls="staticBackdrop" onClick={(e) => MySampleGetByIdApi(item.sampleId)} >Edit</Link></li>
+                                                        <li><a className="dropdown-item" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight22" aria-controls="staticBackdrop" onClick={(e) => setIdForDelete(item.courseId)}>Delete</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+
+
+                                        </tr>
                                     ))}
 
 
@@ -902,7 +937,14 @@ console.log('sample  get all data ',sampleData)
                                 <div className="offcanvas-body pt-0">
                                     <div class="mb-3">
                                         <label for="exampleFormControlInput1" class="form-label heading-16">Title</label>
-                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => setTitle(e.target.value)} placeholder="Select Title" />
+                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" onChange={(e) => handleTitle(e.target.value)} placeholder="Select Title" />
+                                    </div>
+                                    <div className='pt-1'>
+                                        {isValidTitleRequired && (
+                                            <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                                Title is required
+                                            </p>
+                                        )}
                                     </div>
 
 
@@ -911,7 +953,7 @@ console.log('sample  get all data ',sampleData)
                                         <select class="form-select  form-select-sm form-focus  label-color" onChange={(e) => setClassId(e.target.value)} aria-label="Default select example">
                                             <option selected>--Choose--</option>
                                             {
-                                                setClassdata.map(item =>
+                                                classdata.map(item =>
                                                     <option value={item.classId}>{item.classNo}</option>
                                                 )
                                             }
@@ -957,7 +999,7 @@ console.log('sample  get all data ',sampleData)
 
                                             <option value='true'>True</option>
                                             <option value='false'>False</option>
-                                          
+
                                         </select>
                                     </div>
 
@@ -1016,18 +1058,18 @@ console.log('sample  get all data ',sampleData)
                                 </div>
                                 <hr className='' style={{ marginTop: '-3px' }} />
                                 <div className="offcanvas-body pt-0">
+
                                     <div class="mb-3">
                                         <label for="exampleFormControlInput1" class="form-label heading-16">Title</label>
-                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1"value={title}  onChange={(e) => setTitle(e.target.value)} placeholder="Select Title" />
+                                        <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Select Title" />
                                     </div>
-
 
                                     <div className="mb-1  ">
                                         <label for="exampleFormControlInput1" className="form-label  heading-16">Class</label>
                                         <select class="form-select  form-select-sm form-focus  label-color" value={classId} onChange={(e) => setClassId(e.target.value)} aria-label="Default select example">
                                             <option selected>--Choose--</option>
                                             {
-                                                setClassdata.map(item =>
+                                                classdata.map(item =>
                                                     <option value={item.classId}>{item.classNo}</option>
                                                 )
                                             }
@@ -1073,7 +1115,7 @@ console.log('sample  get all data ',sampleData)
 
                                             <option value='true'>True</option>
                                             <option value='false'>False</option>
-                                          
+
                                         </select>
                                     </div>
 
@@ -1150,7 +1192,7 @@ console.log('sample  get all data ',sampleData)
                                                 <p>This Action will be permanently <br /> delete the Profile Data</p>
                                             </div>
                                             <div className="form-check mt-1">
-                                                <input className="form-check-input my-form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+                                                <input className="form-check-input my-form-check-input" onClick={() => setForDelete(true)} type="checkbox" value="" id="flexCheckDefault" />
                                                 <label className="form-check-label agree" for="flexCheckDefault">
                                                     I Agree to delete the Profile Data
                                                 </label>

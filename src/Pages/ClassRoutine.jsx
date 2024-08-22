@@ -816,20 +816,20 @@ const ClassRoutine = () => {
 
               <tbody className='heading-14 align-middle greyTextColor text-center'>
                 {
-                  classRoutineData.map((item, index) => (
+                  classRoutineData?.map((item, index) => (
                     <tr key={index}>
                       <td className=' greyText'>{item.day}</td>
-                      <td className=' greyText'>
-                        {
-                          item?.timetable?.map((item) => (
-                            <div>
-                              { item.teacher} <br />
-                              { item.subject}
-                            </div>
+                      {
+                        item?.timetable?.map((item) => (
+                          <td className=' greyText'>
+                            {item.teacher} <br />
+                            {item.subject}
+                          </td>
 
-                          ))
-                        }
-                      </td>
+
+                        ))
+                      }
+
                     </tr>
                   ))
                 }
@@ -907,11 +907,11 @@ const ClassRoutine = () => {
                           <label for="exampleFormControlInput1" className="form-label  heading-16">Class</label>
                           <select class="form-select  form-select-sm form-focus  label-color" onChange={(e) => Handle(e)} aria-label="Default select example">
                             <option selected>--Choose--</option>
-                            {/* {
+                            {
                               classData.map((item =>
                                 <option value={`${item.classId} , ${item.classNo}`}>{item.classNo}</option>
                               ))
-                            } */}
+                            }
                           </select>
                         </div>
                         <div className="mb-1  ">

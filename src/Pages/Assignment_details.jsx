@@ -442,7 +442,7 @@ const Assignment_details = () => {
 
     console.log('id by params',id)
     let newId = id.id
-    console.log('new idddd',newId)
+    console.log('new idddd from publishh',newId)
 
     useEffect(()=>{
         MyAssigmntGetByIdGetAll()

@@ -3,10 +3,11 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 // import Calender from '../Layouts/Calender'
-import { getAllAssignmentsDataApi, getAllClassRoutineDataApi, getAllEventDataApi, getAllHolidayDataApi } from '../Utils/Apis';
+import { getAllAssignmentsDataApi, getAllClassRoutineDataApi, getAllEventDataApi, getAllHolidayDataApi, getAllLeaveOfTeacherDataApi } from '../Utils/Apis';
 import toast, { Toaster } from 'react-hot-toast';
 // import DataLoader from './Layouts/Loader';
 import HashLoader from './HashLoaderCom';
+import LineChart from '../Charts/LineChart'
 
 
 const Container = styled.div`
@@ -68,7 +69,16 @@ const Container = styled.div`
   .carousel-indicators .active {
     background-color: #01CCBB;
   }
-
+  .my-btn12{
+  border: 1px solid #aaa;
+  padding: 5px 7px;
+}
+.progress-bar{
+  width: 100% !important;
+  height: 5px !important;
+  border-radius: 0px !important;
+  background-color: #FF914C;
+}
 
 `;
 
@@ -83,7 +93,9 @@ const DashboardPage = () => {
   const [RoutineData, setRoutineData] = useState([]);
   const [DailyAttendanceData, setDailyAttendanceData] = useState([]);
   const [EventData, setEventData] = useState([]);
-
+  const [leaveAllData, setLeaveAllData] = useState([]);
+  const [availableLeave, setAvailableLeave] = useState([]);
+  console.log('available leave', availableLeave[1])
   const [timeTableDay, setTimeTableDay] = useState('monday')
 
   const date = new Date();
@@ -96,7 +108,7 @@ const DashboardPage = () => {
     getAllAssignments();
     getAllHolidays();
     getAllEvents();
-
+    MyGetallLeaveOfTeacher()
     if (today) {
       setTimeTableDay(today)
     }
@@ -130,7 +142,7 @@ const DashboardPage = () => {
     try {
       setloaderState(true);
       var response = await getAllClassRoutineDataApi(timeTableDay);
-      console.log(response, 'ClassRoutines')
+      console.log(response, 'ClassRoutines all data 11234 ')
       if (response?.status === 200) {
         if (response?.data?.status === 'success') {
           setloaderState(false);
@@ -235,6 +247,33 @@ const DashboardPage = () => {
       console.log('Error Facing during Get All Event API - ', error)
     }
   }
+  const MyGetallLeaveOfTeacher = async () => {
+    try {
+      setloaderState(true);
+
+      var response = await getAllLeaveOfTeacherDataApi();
+      console.log(response, 'All leave data in teacher')
+      if (response?.status === 200) {
+        if (response?.data?.status === 'success') {
+          setloaderState(false);
+          setLeaveAllData(response?.data?.leave)
+          setAvailableLeave(response?.data?.leave)
+          toast.success(response.data.message);
+        }
+        else {
+          setloaderState(false);
+          toast.error(response?.data?.message);
+        }
+      }
+      else {
+        setloaderState(false);
+        console.log(response?.data?.msg);
+      }
+    }
+    catch (error) {
+      console.log('Error Facing during Get All Event API - ', error)
+    }
+  }
 
 
   return (
@@ -255,7 +294,7 @@ const DashboardPage = () => {
                   </div>
                   <div>
                     <select className="form-select rounded-2 borderOrange text-black font12" value={timeTableDay} aria-label="Default select example" onChange={(e) => setTimeTableDay(e.target.value)}>
-                      <option value=''>Select</option>
+                      {/* <option value=''>Select</option> */}
                       <option defaultValue value='Today'>Today</option>
                       <option value='Week'>Week</option>
                       <option value='Month'>Month</option>
@@ -264,7 +303,7 @@ const DashboardPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="row">
+              <div className="row heading-16">
                 {RoutineData.map((item) => (
                   <div className="col-6 p-1" key={item.classRouteId}>
                     <div className="timeTableCard p-2">
@@ -287,16 +326,44 @@ const DashboardPage = () => {
         <div className="col-6 ps-3 pe-3 pt-3">
           <div className="row cards p-2 h-100">
             <div className="col-12">
-              <div className="row">
-                <p>Attendance</p>
+              <div className=" d-flex justify-content-between">
+                <div className="pt-2">
+                  <p >Attendance</p>
+                </div>
+                <div className="">
+                  <div className='d-flex g-1 for-media-query'>
+                    <div className='pe-2'  >
+                      <button type="button" className="btn my-btn12 heading-12  mt-1" data-bs-dismiss="offcanvas" onClick={() => MyLeaveGetAllApi('week')} >Today</button>
+                    </div>
+                    <div className='pe-2'>
+                      <button type="button" className="btn my-btn12 heading-12  mt-1" data-bs-dismiss="offcanvas" onClick={() => MyLeaveGetAllApi('month')}>Last 7 Days</button>
+                    </div>
+                  </div>
+                </div>
               </div>
+              <hr />
               <div className="row">
-                {/* <Calender DailyAttendanceData={DailyAttendanceData} /> */}
+                <div className='text-center mt-4'>
+                  <h4 className='mb-0'>05:09:10 Hrs</h4>
+                  <p className='pt-0'>28 May 2024</p>
+                  <p className='heading-14' style={{ color: '#FF914C' }}>Late by 00:09</p>
+                </div>
+                <div className='mt-5'>
+                  <div class="progress progress-bar" role="progressbar" aria-label="Animated striped example" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                    {/* <div class="progress-bar  progress-bar-striped progress-bar-animated "></div> */}
+                  </div>
+                </div>
+                <div className='d-flex mb-3 mt-2 justify-content-between heading-14' style={{color:'#8F8F8F'}}>
+                  <p>10.00 AM</p>
+                  <p>General</p>
+                  <p>7.00 PM</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       <div className="row mx-2">
         <div className="col-6 ps-3 pe-3 pt-3">
           <div className="row cards p-2 h-100">
@@ -306,14 +373,14 @@ const DashboardPage = () => {
                   <div className="flex-grow-1 align-self-center">
                     <p className='font14'>Assignment Details</p>
                   </div>
-                  <Link className='p-1 ps-2 pe-2 rounded-2 borderOrange text-black text-decoration-none font12' type="button" to='/Assignments'>View All</Link>
+                  <Link className='p-1 ps-2 pe-2 rounded-2 borderOrange text-black text-decoration-none font12' type="button" to='/assignmenttea'>View All</Link>
                 </div>
               </div>
               <div className="row">
                 {AssignmentData.slice(0, 3).map((item) => (
                   <div className="col-12 p-1" key={item.id}>
                     <div className="timeTableCard p-2">
-                      <div className="row">
+                      <div className="row mb-2">
                         <div className="col-4 align-self-center">
                           <p className='greenText font16'>{item.title}</p>
                         </div>
@@ -324,14 +391,14 @@ const DashboardPage = () => {
                           <p className='font12'></p>
                         </div>
                       </div>
-                      <div className="row pt-1">
-                        <div className="col-4 align-self-center">
+                      <div className="row pt-1 heading-16">
+                        <div className="col-2 align-self-center">
                           <p className='font12 greyText'>Class - {item.sectionName}</p>
                         </div>
-                        <div className="col-4 align-self-center">
+                        <div className="col-5 align-self-center">
                           <p className='font12 greyText'>Start Date - {item.startDate}</p>
                         </div>
-                        <div className="col-4 align-self-center">
+                        <div className="col-5 align-self-center">
                           <p className='font12 greyText'>End Date - {item.endDate}</p>
                         </div>
                       </div>
@@ -350,74 +417,37 @@ const DashboardPage = () => {
                   <div className="flex-grow-1 align-self-center">
                     <p className='font14'>Leave Report</p>
                   </div>
-                  <Link className='p-1 ps-2 pe-2 rounded-2 borderOrange text-black text-decoration-none font12' type="button" to='/OnlineCourse'>View All</Link>
+                  <Link className='p-1 ps-2 pe-2 rounded-2 borderOrange text-black text-decoration-none font12' type="button" to='/leave'>View All</Link>
                 </div>
               </div>
-              {/* <div className="row">
-                <div id="carouselExampleIndicators" className="carousel slide">
-                  <div className="carousel-indicators">
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" className="active" aria-current="true" aria-label="Slide 1"></button>
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+              <div className="row heading-16">
+                {leaveAllData?.map((item) => (
+                  <div className="col-6 p-1" key={item.classRouteId}>
+                    <div className='d-flex timeTableCard' >
+                      <div className=" p-2">
+                        <p className='greenText font18'>{item.leaveType}</p>
+                        <div className="d-flex pt-2">
+                          <div className="flex-grow-1 align-self-center">
+                            <p className='font12'>Available {item.leaveCount} day</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className='my-class'>
+                        <p className='ps-5'>
+                          <LineChart />
+                        </p>
+                      </div>
+
+                    </div>
+
                   </div>
-                  <div className="carousel-inner">
-                    <div className="carousel-item active">
-                      <div className="row p-4">
-                        <div className="col-6">
-                          <img src="./images/onlineCourse1.svg" className="d-block w-100" alt="..." />
-                        </div>
-                        <div className="col-6 align-self-center text-center">
-                          <p className='font18'>Mathematics</p>
-                          <p className='font14 greyText mt-1'>Trigonometry</p>
-                          <p className='text-center mt-2'>
-                            <button className='btn continueLesson ps-3 pe-3 text-white font12' type='button'>Continue Lesson</button>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="carousel-item">
-                      <div className="row p-4">
-                        <div className="col-6">
-                          <img src="./images/onlineCourse1.svg" className="d-block w-100" alt="..." />
-                        </div>
-                        <div className="col-6 align-self-center text-center">
-                          <p className='font18'>Mathematics</p>
-                          <p className='font14 greyText mt-1'>Trigonometry</p>
-                          <p className='text-center mt-2'>
-                            <button className='btn continueLesson ps-3 pe-3 text-white font12' type='button'>Continue Lesson</button>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="carousel-item">
-                      <div className="row p-4">
-                        <div className="col-6">
-                          <img src="./images/onlineCourse1.svg" className="d-block w-100" alt="..." />
-                        </div>
-                        <div className="col-6 align-self-center text-center">
-                          <p className='font18'>Mathematics</p>
-                          <p className='font14 greyText mt-1'>Trigonometry</p>
-                          <p className='text-center mt-2'>
-                            <button className='btn continueLesson ps-3 pe-3 text-white font12' type='button'>Continue Lesson</button>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span className="visually-hidden">Previous</span>
-                  </button>
-                  <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span className="visually-hidden">Next</span>
-                  </button>
-                </div>
-              </div> */}
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
       <div className="row mx-2">
         <div className="col-6 ps-3 pe-3 pt-3">
           <div className="row cards p-2 h-100">

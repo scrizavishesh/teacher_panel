@@ -11,6 +11,7 @@ import { SubjectByClassIdInSyllabusGetAllApi } from '../Utils/Apis'
 import Assign_archieves from '../Pages/Assign_archieves';
 import Assign_draft from '../Pages/Assign_draft';
 import { AssignmntGetAllApi } from '../Utils/Apis'
+import Add_assign_offcnvs from './Add_assign_offcnvs';
 
 // ## style css area start ####  
 
@@ -476,7 +477,7 @@ const AssignmentTea = () => {
   const [searchKey, setSearchKey] = useState('')
   const [showdelete, setShowdelete] = useState(true)
   const [hidedelete, setHidedelete] = useState(false)
-  const [setClassdata, setSetClassdata] = useState([])
+  const [classdata, setClassdata] = useState([])
   const [assignmntdata, setAssignmntdata] = useState()
   console.log('my assigmnt data', assignmntdata)
   const [sectionData, setSectionData] = useState([])
@@ -488,6 +489,7 @@ const AssignmentTea = () => {
   const [IdForUpdate, setIdForUpdate] = useState()
   const [showadd, setShowadd] = useState(true)
   const [hideedit, setHideedit] = useState(false)
+  const [title, setTitle] = useState()
 
   const [classId, setClassId] = useState()
   const [sectionId, setSectionId] = useState()
@@ -498,6 +500,7 @@ const AssignmentTea = () => {
   console.log('subjectid', subjectId)
   const [singleState, setSingleState] = useState('published');
 
+  const [isValidFromDateRequired, setIsValidFromDateRequired] = useState(false);
 
   useEffect(() => {
     UpdatClassGetApi()
@@ -505,8 +508,9 @@ const AssignmentTea = () => {
       MySectionGetApi()
       MySubjectByClassIdGetApi()
     }
-  
-  }, [classId,subjectId,sectionId])
+
+  }, [classId, subjectId, sectionId])
+
 
   // Get All Api from class list page for id 
   const UpdatClassGetApi = async () => {
@@ -516,7 +520,7 @@ const AssignmentTea = () => {
       console.log('class-get-all-api in Assignment', response);
       if (response?.status === 200) {
         toast.success(response?.data?.classes?.message)
-        setSetClassdata(response?.data?.classes)
+        setClassdata(response?.data?.classes)
         setLoader(false)
       } else {
         toast.error(response?.data?.classes?.message);
@@ -563,27 +567,28 @@ const AssignmentTea = () => {
   }
 
 
-// Get all assignmnt 
+  // Get all assignmnt 
 
- const MyAssignmntGetApi = async () => {
-  setLoader(true)
-  try {
-    const response = await AssignmntGetAllApi(sectionId, subjectId,searchKey);
-    console.log('Assignmnt-get-all-api in Assignment', response);
-    if (response?.status === 200) {
-      setSearch(true)
-      toast.success(response?.data?.classes?.message)
-      setAssignmntdata(response?.data?.assignment)
-      setLoader(false)
-    } else {
-      toast.error(response?.data?.classes?.message);
+  const MyAssignmntGetApi = async () => {
+    setLoader(true)
+    try {
+      const response = await AssignmntGetAllApi(sectionId, subjectId, searchKey);
+      console.log('Assignmnt-get-all-api in Assignment', response);
+      if (response?.status === 200) {
+        setSearch(true)
+        toast.success(response?.data?.msg)
+        setAssignmntdata(response?.data?.assignment)
+        setLoader(false)
+      } else {
+        toast.error(response?.data?.msg);
+      }
+    } catch (error) {
+      console.log(error)
     }
-  } catch (error) {
-    console.log(error)
   }
-}
 
-const[search, setSearch] = useState(false)
+
+  const [search, setSearch] = useState(false)
 
   const data = assignmntdata;
   return (
@@ -606,12 +611,6 @@ const[search, setSearch] = useState(false)
             </nav>
           </div>
           <div className='d-flex g-1 for-media-query'>
-            {/* <div className='me-2 search-responsive'>
-                            <div className="input-group mb-3 ">
-                                <input type="text" className="form-control form-focus font-color" style={{ height: '34px' }} placeholder="Search" aria-label="Recipient's username" aria-describedby="basic-addon2" />
-                                <span className="input-group-text button-bg-color button-color heading-14 font-color " style={{ cursor: 'pointer', height: "34px" }} id="basic-addon2">Search</span>
-                            </div>
-                        </div> */}
             <Link type="button" className="btn btn-success heading-16 my-own-button me-3 " data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight" to={''}>+ Add Assignment</Link>
           </div>
         </div>
@@ -626,7 +625,7 @@ const[search, setSearch] = useState(false)
                 <select class="form-select  form-select-sm form-focus label-color" onChange={(e) => setClassId(e.target.value)} aria-label="Default select example">
                   <option value="" >--Choose--</option>
                   {
-                    setClassdata.map(item =>
+                    classdata.map(item =>
                       <option value={item.classId}>{item.classNo}</option>
                     )
                   }
@@ -700,20 +699,20 @@ const[search, setSearch] = useState(false)
                   </div>
                   {
                     search ?
-                    <div className="row">
-                    {
-                      singleState === 'published' && (<Assign_publish data={data}  />)
-                    }
-                    {
-                      singleState === 'drafts' && (<Assign_draft />)
-                    }
-                    {
-                      singleState === 'archives' && (<Assign_archieves />)
-                    }
+                      <div className="row">
+                        {
+                          singleState === 'published' && (<Assign_publish data={data} />)
+                        }
+                        {
+                          singleState === 'drafts' && (<Assign_draft />)
+                        }
+                        {
+                          singleState === 'archives' && (<Assign_archieves />)
+                        }
 
-                  </div>
-                  :
-                  <></>
+                      </div>
+                      :
+                      <></>
                   }
                 </div>
               </div>
@@ -732,53 +731,48 @@ const[search, setSearch] = useState(false)
               <>
                 <div className="offcanvas-header">
                   <Link data-bs-dismiss="offcanvas" ><img src="./images/Vector (13).svg" alt="" /></Link>
-                  <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Add Syllabus</h5>
+                  <h5 className="offcanvas-title heading-16" id="offcanvasRightLabel">Add Assignment</h5>
                 </div>
                 <hr className='' style={{ marginTop: '-3px' }} />
                 <div className="offcanvas-body pt-0">
-                  <div class="mb-3">
+                  {/* <div class="mb-3">
                     <label for="exampleFormControlInput1" class="form-label heading-16">Title</label>
-                    <input type="email" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="Select Title" />
+                    <input type="email" class="form-control form-control-sm" onChange={(e)=> setTitle(e.target.value)} id="exampleFormControlInput1" placeholder="Select Title" />
                   </div>
                   <div>
-                    {/* {isValidNameRequired && (
-                      <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
-                        Title is required
-                      </p>
-                    )} */}
                   </div>
 
                   <div className="mb-1  ">
                     <label for="exampleFormControlInput1" className="form-label  heading-16">Class</label>
                     <select class="form-select  form-select-sm form-focus  label-color" aria-label="Default select example">
                       <option selected>--Choose--</option>
-                      {/* {
-                        classData.map(item =>
+                      {
+                        classdata.map(item =>
                           <option value={`${item.classId} , ${item.classNo}`}>{item.classNo}</option>
                         )
-                      } */}
+                      }
                     </select>
                   </div>
                   <div className="mb-1  ">
                     <label for="exampleFormControlInput1" className="form-label   heading-16">Section</label>
                     <select class="form-select  form-select-sm form-focus   label-color" aria-label="Default select example">
                       <option selected>--Choose--</option>
-                      {/* {
+                      {
                         sectionData.map(item =>
                           <option value={item.sectionName}>{item.sectionName}</option>
                         )
-                      } */}
+                      }
                     </select>
                   </div>
                   <div className="mb-1  ">
                     <label for="exampleFormControlInput1" className="form-label  heading-16">Subject</label>
                     <select class="form-select  form-select-sm form-focus  label-color" aria-label="Default select example">
                       <option selected>--Choose--</option>
-                      {/* {
+                      {
                         subjectData.map(item =>
                           <option value={item.subjectName}>{item.subjectName}</option>
                         )
-                      } */}
+                      }
                     </select>
                   </div>
                   <div class="mb-3">
@@ -786,19 +780,15 @@ const[search, setSearch] = useState(false)
                     <input type="file" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="Select Class" />
                   </div>
                   <div>
-                    {/* {isImageValidRequired && (
-                      <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
-                        jpg and png supported
-                      </p>
-                    )} */}
+                  
                   </div>
-
-
 
                   <div className='my-button11 '>
                     <button type="button" className="btn btn-outline-success heading-16 btn-bgAndColor" >Add Syllabus</button>
                     <button type="button" className="btn btn-outline-success heading-16">Cancel</button>
-                  </div>
+                  </div> */}
+
+                  <Add_assign_offcnvs />
                 </div>
 
               </>
@@ -950,82 +940,82 @@ const[search, setSearch] = useState(false)
 
         <div className="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight22" aria-labelledby="offcanvasRightLabel">
 
-          {
-            showdelete && (
-              <div className="container-fluid">
-                <div className="offcanvas-header p-0 pt-3">
-                  <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
-                  <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Delete Section</h5>
+                    {
+                        showdelete && (
+                            <div className="container-fluid">
+                                <div className="offcanvas-header p-0 pt-3">
+                                    <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
+                                    <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Delete Section</h5>
+                                </div>
+                                <hr className='' />
+
+                                <div className="offcanvas-body">
+
+                                    <div className="sure-main-container mt-4">
+                                        <div className="sure-container">
+                                            <div>
+                                                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M29.5312 0.46875C13.2656 0.46875 0 13.7344 0 30C0 46.2656 13.2656 59.5312 29.5312 59.5312C45.7969 59.5312 59.0625 46.2656 59.0625 30C59.0625 13.7344 45.7969 0.46875 29.5312 0.46875ZM29.5312 55.7812C15.3281 55.7812 3.75 44.2031 3.75 30C3.75 15.7969 15.3281 4.21875 29.5312 4.21875C43.7344 4.21875 55.3125 15.7969 55.3125 30C55.3125 44.2031 43.7344 55.7812 29.5312 55.7812Z" fill="#B50000" />
+                                                    <path d="M31.4062 25.5469H27.6562V44.2969H31.4062V25.5469Z" fill="#B50000" />
+                                                    <path d="M31.4062 16.6406H27.6562V20.3906H31.4062V16.6406Z" fill="#B50000" />
+                                                </svg>
+                                            </div>
+
+                                            <div className="sure-content mt-2">
+                                                <h5 className='heading-20'>Are you sure?</h5>
+                                                <p>This Action will be permanently <br /> delete the Profile Data</p>
+                                            </div>
+                                            <div className="form-check mt-1">
+                                                <input className="form-check-input my-form-check-input" onClick={() => setForDelete(true)} type="checkbox" value="" id="flexCheckDefault" />
+                                                <label className="form-check-label agree" for="flexCheckDefault">
+                                                    I Agree to delete the Profile Data
+                                                </label>
+                                            </div>
+
+                                            <div className="mt-4">
+                                                <button type="button" className="btn my-btn button00" disabled={forDelete ? false : true} onClick={() => MyOfflineExamDeleApi(IdForDelete)}>Delete</button>
+                                                <button type="button" className="btn cancel-btn ms-2" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        )
+                    }
+                    {/* ############## After click ##############  */}
+
+                    {
+                        hidedelete && (
+                            <div className="container-fluid">
+                                <div className="offcanvas-header p-0 pt-3">
+                                    <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
+                                    <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Successfull Message</h5>
+                                </div>
+                                <hr className='' />
+                                <div className="delete-section mt-5">
+                                    <div className="bg-container">
+                                        <div className="img-container22">
+                                            <img src="./images/XMLID_1_.png" alt="" />
+                                        </div>
+                                        <div className="content mt-5">
+                                            <p >Successful Delete</p>
+                                            <hr style={{ width: '' }} />
+                                            <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your profile has been <br /> Successfully Delete</p>
+                                        </div>
+                                        <div className='button-position'>
+                                            <button type="button" className="btn btn-outline-primary button11 mt-4 mb" data-bs-dismiss="offcanvas" aria-label="Close" style={{ fontSize: '14px' }}>Continue</button>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        )
+                    }
                 </div>
-                <hr className='' />
-
-                <div className="offcanvas-body">
-
-                  <div className="sure-main-container mt-4">
-                    <div className="sure-container">
-                      <div>
-                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M29.5312 0.46875C13.2656 0.46875 0 13.7344 0 30C0 46.2656 13.2656 59.5312 29.5312 59.5312C45.7969 59.5312 59.0625 46.2656 59.0625 30C59.0625 13.7344 45.7969 0.46875 29.5312 0.46875ZM29.5312 55.7812C15.3281 55.7812 3.75 44.2031 3.75 30C3.75 15.7969 15.3281 4.21875 29.5312 4.21875C43.7344 4.21875 55.3125 15.7969 55.3125 30C55.3125 44.2031 43.7344 55.7812 29.5312 55.7812Z" fill="#B50000" />
-                          <path d="M31.4062 25.5469H27.6562V44.2969H31.4062V25.5469Z" fill="#B50000" />
-                          <path d="M31.4062 16.6406H27.6562V20.3906H31.4062V16.6406Z" fill="#B50000" />
-                        </svg>
-                      </div>
-
-                      <div className="sure-content mt-2">
-                        <h5 className='heading-20'>Are you sure?</h5>
-                        <p>This Action will be permanently <br /> delete the Profile Data</p>
-                      </div>
-                      <div className="form-check mt-1">
-                        <input className="form-check-input my-form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                        <label className="form-check-label agree" for="flexCheckDefault">
-                          I Agree to delete the Profile Data
-                        </label>
-                      </div>
-
-                      <div className="mt-4">
-                        <button type="button" className="btn my-btn  button00 my-button112233RedDelete" disabled={forDelete ? false : true}  >Delete</button>
-                        <button type="button" className="btn cancel-btn ms-2" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            )
-          }
-          {/* ############## After click ##############  */}
-
-          {
-            hidedelete && (
-              <div className="container-fluid">
-                <div className="offcanvas-header p-0 pt-3">
-                  <Link data-bs-dismiss="offcanvas" className='ps-3'><img src="./images/Vector (13).svg" alt="" /></Link>
-                  <h5 className="offcanvas-title pe-3 heading-16" id="offcanvasRightLabel" >Successfull Message</h5>
-                </div>
-                <hr className='' />
-                <div className="delete-section mt-5">
-                  <div className="bg-container">
-                    <div className="img-container22">
-                      <img src="./images/XMLID_1_.png" alt="" />
-                    </div>
-                    <div className="content mt-5">
-                      <p className='heading-20'>Successful Delete</p>
-                      <hr style={{ width: '' }} />
-                      <p className='mb-5' style={{ color: '#ADADBD', fontSize: '14px' }}>Your profile has been <br /> Successfully Delete</p>
-                    </div>
-                    <div className='button-position'>
-                      <button type="button" className="btn btn-outline-primary button11 mt-4 mb my-button112233" data-bs-dismiss="offcanvas" aria-label="Close" style={{ fontSize: '14px' }}>Continue</button>
-
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-
-            )
-          }
-        </div>
         {/* ################ offcanvas delete end #############  */}
       </div>
 

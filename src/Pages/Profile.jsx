@@ -77,7 +77,7 @@ const Container = styled.div`
 const Profile = () => {
 
     const [forDelete, setForDelete] = useState(false)
- 
+
     const [hide, setHide] = useState(false)
     const [show, setShow] = useState(true)
     const [hide22, setHide22] = useState(false)
@@ -96,60 +96,146 @@ const Profile = () => {
     const [staffLastName, setStaffLastName] = useState()
     const [phone, setPhone] = useState()
     const [staffEmail, setStaffEmail] = useState()
-console.log('emaillllll',staffEmail)
-    useEffect(()=>{
+
+    const [isValidAddressRequired, setIsValidAddressRequired] = useState(false);
+    const [isValidStaffNameRequired, setIsValidStaffNameRequired] = useState(false);
+    const [isValidStaffLastNameRequired, setIsValidStaffLastNameRequired] = useState(false);
+    const [isValidPhoneRequired, setIsValidPhoneRequired] = useState(false);
+    const [isValidStaffEmailRequired, setIsValidStaffEmailRequired] = useState(false);
+
+
+    useEffect(() => {
         MyProfileGetAllApi()
-    },[])
+    }, [])
+
+    // ###### validation ##########
+    const [errors, setErrors] = useState({});
 
 
-  // Leave Get All Api   
-  const MyProfileGetAllApi = async () => {
-    setLoader(true)
-    try {
-      const response = await ProfileByIdAllApi();
-      console.log('Get all Api data in Profile', response);
-      if (response?.status === 200) {
-        toast.success(response?.data?.msg)
-        setAddress(response?.data?.otherStaff?.staffAddress)
-        setStaffName(response?.data?.otherStaff?.staffName)
-        setStaffLastName(response?.data?.otherStaff?.staffLastName)
-        setPhone(response?.data?.otherStaff?.staffPhone)
-        setStaffEmail(response?.data?.otherStaff?.staffEmail)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.msg);
-      }
-    } catch (error) {
-      console.log(error)
+    const FuncValidation = () => {
+        // address
+        if (address === "" || !address) {
+            setIsValidAddressRequired(true)
+        }
+        else {
+        }
+        // staffname
+        if (staffName === "" || !staffName) {
+            setIsValidStaffNameRequired(true)
+        }
+        else {
+        }
+        // stafflastname
+        if (staffLastName === "" || !staffLastName) {
+            setIsValidStaffLastNameRequired(true)
+        }
+        else {
+        }
+        // phone
+        if (phone === "" || !phone) {
+            setIsValidPhoneRequired(true)
+        }
+        else {
+        }
+        // staffemail
+        if (staffEmail === "" || !staffEmail) {
+            setIsValidStaffEmailRequired(true)
+        }
+        else {
+        }
+        return errors;
     }
-  }
-      // Profile Put api 
-  const MyProfilePutApi = async () => {
-    setLoader(true)
-    try {
-      const formData = new FormData()
-      formData.append('staffName', staffName)
-      formData.append('lastName', staffLastName)
-      formData.append('staffPhone', phone)
-      formData.append('address', address)
+
+    // address 
+    const handleAddress = (e2) => {
+        setAddress(e2);
+        const nameRegex = /^[A-Za-z]+$/;
+        setIsValidAddressRequired(nameRegex.test(e2));
+
+        if (e2 === "") {
+            setIsValidAddressRequired(true)
+        } else {
+            setIsValidAddressRequired(false)
+        }
+    }
+    // staffName 
+    const handleStaffName = (e2) => {
+        setStaffName(e2);
+        const nameRegex = /^[A-Za-z]+$/;
+        setIsValidStaffNameRequired(nameRegex.test(e2));
+
+        if (e2 === "") {
+            setIsValidStaffNameRequired(true)
+        } else {
+            setIsValidStaffNameRequired(false)
+        }
+    }
+    // phone
+    const handlePhone = (e2) => {
+        setPhone(e2);
+        const noRegex = /^[0-9]+$/;
+        setIsValidPhoneRequired(noRegex.test(e2));
+
+        if (e2 === "") {
+            setIsValidPhoneRequired(true)
+        } else {
+            setIsValidPhoneRequired(false)
+        }
+    }
+
+    // ###### validation ##########
+
+    // Leave Get All Api   
+    const MyProfileGetAllApi = async () => {
+        setLoader(true)
+        try {
+            const response = await ProfileByIdAllApi();
+            console.log('Get all Api data in Profile', response);
+            if (response?.status === 200) {
+                toast.success(response?.data?.message)
+                setAddress(response?.data?.otherStaff?.staffAddress)
+                setStaffName(response?.data?.otherStaff?.staffName)
+                setStaffLastName(response?.data?.otherStaff?.staffLastName)
+                setPhone(response?.data?.otherStaff?.staffPhone)
+                setStaffEmail(response?.data?.otherStaff?.staffEmail)
+                setLoader(false)
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    // Profile Put api 
+    const MyProfilePutApi = async () => {
+        if(FuncValidation()){
+            setLoader(true)
+            try {
+                const formData = new FormData()
+                formData.append('staffName', staffName)
+                formData.append('lastName', staffLastName)
+                formData.append('staffPhone', phone)
+                formData.append('address', address)
+    
+                const response = await ProfileUpdateAllApi(formData);
+                console.log('MY profile update api', response)
+                if (response?.status === 200) {
+                    toast.success(response?.data?.message);
+                    // MyLeaveGetAllApi()
+                    setShow22(false)
+                    setHide22(true)
+                    setLoader(false)
+                } else {
+                    toast.error(response?.data?.message);
+                    setShow22(true)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
       
-      const response = await ProfileUpdateAllApi(formData);
-      console.log('MY profile update api', response)
-      if (response?.status === 200) {
-        toast.success(response?.data?.message);
-        // MyLeaveGetAllApi()
-        setShow22(false)
-        setHide22(true)
-        setLoader(false)
-      } else {
-        toast.error(response?.data?.message);
-        setShow22(true)
-      }
-    } catch (error) {
-      console.log(error)
+     
     }
-    // console.log('my-dataset',data)
-  }
     return (
         <Container>
             <div className="container-fluid p-4">
@@ -185,11 +271,18 @@ console.log('emaillllll',staffEmail)
                         <div className="col-lg-9">
                             <div class="mb-1">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Name</label>
-                                <input type="text" class="form-control form-control-sm" value={staffName} onChange={(e)=> setStaffName(e.target.value)}  id="exampleFormControlInput1" placeholder="Bertha N. Fisher" />
+                                <input type="text" class="form-control form-control-sm" value={staffName} onChange={(e) => handleStaffName(e.target.value)} id="exampleFormControlInput1" placeholder="Bertha N. Fisher" />
+                            </div>
+                            <div className='pt-3'>
+                                {isValidStaffNameRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Name is required
+                                    </p>
+                                )}
                             </div>
                             <div class="mb-1">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Email</label>
-                                <input type="text" class="form-control form-control-sm"  id="exampleFormControlInput1" placeholder="admin@example.com" />
+                                <input type="text" class="form-control form-control-sm" id="exampleFormControlInput1" placeholder="admin@example.com" />
                             </div>
                             <div class="mb-1">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Designation</label>
@@ -213,11 +306,25 @@ console.log('emaillllll',staffEmail)
                             </div>
                             <div class="mb-1">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Phone Number</label>
-                                <input type="email" class="form-control form-control-sm" value={phone} onChange={(e)=> setPhone(e.target.value)} id="exampleFormControlInput1" placeholder="Bertha N. Fisher" />
+                                <input type="email" class="form-control form-control-sm" value={phone} onChange={(e) => handlePhone(e.target.value)} id="exampleFormControlInput1" placeholder="Bertha N. Fisher" />
+                            </div>
+                            <div className='pt-3'>
+                                {isValidPhoneRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Number is required
+                                    </p>
+                                )}
                             </div>
                             <div class="mb-1">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Address</label>
-                                <input type="text" class="form-control form-control-sm" value={address} onChange={(e)=> setAddress(e.target.value)} id="exampleFormControlInput1" placeholder="Bertha N. Fisher" />
+                                <input type="text" class="form-control form-control-sm" value={address} onChange={(e) => handleAddress(e.target.value)} id="exampleFormControlInput1" placeholder="Bertha N. Fisher" />
+                            </div>
+                            <div className='pt-3'>
+                                {isValidAddressRequired && (
+                                    <p className='ms-1' style={{ color: 'red', fontSize: '14px', marginTop: '-18px' }}>
+                                        Address is required
+                                    </p>
+                                )}
                             </div>
                             <div class="mb-1">
                                 <label for="exampleFormControlInput1" class="form-label heading-16">Photo</label>
